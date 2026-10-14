@@ -11,6 +11,14 @@ import { User } from "@/lib/models/User";
 import { Mistake } from "@/lib/models/Mistake";
 import { Progress } from "@/lib/models/Progress";
 
+// Agent mode slugs — these don't use PracticeMode object
+const AGENT_MODE_SLUGS = new Set([
+  "coding-tutor",
+  "career-advisor",
+  "ai-teacher",
+  "translator",
+]);
+
 export const maxDuration = 30; // Vercel function timeout
 
 export async function POST(request: NextRequest) {
@@ -26,22 +34,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { message, mode: modeSlug, conversationId, history } = parseResult.data;
-
-    const mode = getPracticeModeBySlug(modeSlug);
-    if (!mode) {
-      return NextResponse.json(
-        { error: "Invalid practice mode." },
-        { status: 400 }
-      );
-    }
+    const { message, mode: modeSlug, conversationId, history, language } =
+      parseResult.data;
 
     // Get or create session
     const sessionId = await getOrCreateSessionId();
 
-    // Rate limiting: 20 messages per day per session
+    // Rate limiting: 30 messages per day per session
     const rateLimit = checkRateLimit(`chat:${sessionId}`, {
-      maxRequests: 20,
+      maxRequests: 30,
       windowMs: 24 * 60 * 60 * 1000,
     });
 
@@ -49,13 +50,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: "Daily limit reached. Come back tomorrow!",
-          reply: "You've been practicing a lot today! Take a break and come back tomorrow for more practice. 🎉",
+          reply:
+            "You've been using me a lot today! Come back tomorrow for more. 🎉",
           grammarFixes: [],
           betterWords: [],
           pronunciationTip: "",
           confidenceScore: 0,
           cefrLevel: "B1",
-          encouragement: "Great dedication! Rest up and we'll practice more tomorrow.",
+          encouragement:
+            "Great dedication! Rest up and we'll continue tomorrow.",
         },
         {
           status: 429,
@@ -67,11 +70,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Determine if this is an agent mode or English coach mode
+    const isAgentMode = AGENT_MODE_SLUGS.has(modeSlug);
+    const practiceMode = isAgentMode
+      ? undefined
+      : getPracticeModeBySlug(modeSlug);
+
+    if (!isAgentMode && !practiceMode) {
+      return NextResponse.json(
+        { error: "Invalid practice mode." },
+        { status: 400 }
+      );
+    }
+
     // Generate AI response
-    const rawResponse = await generateChatResponse(mode, message, history);
+    const rawResponse = await generateChatResponse(
+      modeSlug,
+      message,
+      history,
+      practiceMode,
+      language
+    );
     const aiResponse = parseAIResponse(rawResponse);
 
-    // Save to database (non-blocking — don't await for faster response)
+    // Save to database (non-blocking)
     const dbResult = saveToDatabase(
       sessionId,
       modeSlug,
@@ -80,7 +102,7 @@ export async function POST(request: NextRequest) {
       aiResponse
     );
 
-    // Wait just enough to get the conversation ID, but don't block for full save
+    // Wait just enough to get the conversation ID
     let newConversationId = conversationId;
     try {
       const conversation = await dbResult;
@@ -91,12 +113,9 @@ export async function POST(request: NextRequest) {
 
     const response = NextResponse.json(aiResponse);
 
-    // Return conversation ID in header so client can track it
     if (newConversationId) {
       response.headers.set("x-conversation-id", newConversationId);
     }
-
-    // Rate limit info headers
     response.headers.set(
       "X-RateLimit-Remaining",
       rateLimit.remaining.toString()
@@ -108,7 +127,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error: "Something went wrong. Please try again.",
-        reply: "I'm having trouble right now. Could you try again in a moment?",
+        reply:
+          "I'm having trouble right now. Could you try again in a moment?",
         grammarFixes: [],
         betterWords: [],
         pronunciationTip: "",
@@ -128,7 +148,8 @@ async function saveToDatabase(
   userMessage: string,
   aiResponse: ReturnType<typeof parseAIResponse>
 ) {
-  await connectToDatabase();
+  const db = await connectToDatabase();
+  if (!db) return null;
 
   // Ensure user exists and update activity
   await User.findOneAndUpdate(
@@ -136,12 +157,11 @@ async function saveToDatabase(
     {
       $setOnInsert: { sessionId },
       $set: { lastActiveAt: new Date() },
-      $inc: { xp: 5 }, // 5 XP per message
+      $inc: { xp: 5 },
     },
     { upsert: true, new: true }
   );
 
-  // Create or update conversation
   const userMsg = {
     role: "user" as const,
     text: userMessage,
@@ -169,9 +189,7 @@ async function saveToDatabase(
       {
         $push: { messages: { $each: [userMsg, aiMsg] } },
         $inc: { messageCount: 2 },
-        $set: {
-          avgConfidence: aiResponse.confidenceScore,
-        },
+        $set: { avgConfidence: aiResponse.confidenceScore },
       },
       { new: true }
     );
@@ -185,7 +203,7 @@ async function saveToDatabase(
     });
   }
 
-  // Save grammar mistakes for review
+  // Save grammar mistakes (only for English coach modes)
   for (const fix of aiResponse.grammarFixes) {
     await Mistake.findOneAndUpdate(
       { sessionId, wrong: fix.wrong, right: fix.right },
@@ -212,7 +230,7 @@ async function saveToDatabase(
       $setOnInsert: { sessionId, date: today },
       $inc: {
         messages: 2,
-        minutes: 1, // Approximate 1 minute per exchange
+        minutes: 1,
         newWords: aiResponse.betterWords.length,
       },
       $set: {
@@ -223,32 +241,25 @@ async function saveToDatabase(
     { upsert: true }
   );
 
-  // Update user streak (check if they practiced yesterday)
+  // Update user streak
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   const yesterdayStr = yesterday.toISOString().split("T")[0];
-
   const yesterdayProgress = await Progress.findOne({
     sessionId,
     date: yesterdayStr,
   });
 
-  // If they practiced yesterday or this is their first day, maintain streak
-  if (yesterdayProgress || !(await Progress.findOne({ sessionId, date: { $lt: today } }))) {
+  if (
+    yesterdayProgress ||
+    !(await Progress.findOne({ sessionId, date: { $lt: today } }))
+  ) {
     const todayProgress = await Progress.findOne({ sessionId, date: today });
     if (todayProgress && !todayProgress.streakMaintained) {
-      // First message of the day — increment streak
-      await User.findOneAndUpdate(
-        { sessionId },
-        { $inc: { streak: 1 } }
-      );
+      await User.findOneAndUpdate({ sessionId }, { $inc: { streak: 1 } });
     }
   } else {
-    // Broke streak — reset to 1
-    await User.findOneAndUpdate(
-      { sessionId },
-      { $set: { streak: 1 } }
-    );
+    await User.findOneAndUpdate({ sessionId }, { $set: { streak: 1 } });
   }
 
   return conversation;

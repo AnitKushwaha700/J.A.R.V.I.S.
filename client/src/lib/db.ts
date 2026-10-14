@@ -15,7 +15,8 @@ if (!cached) {
 
 async function connectToDatabase() {
   if (!process.env.MONGODB_URI) {
-    throw new Error("Please define the MONGODB_URI environment variable inside .env.local");
+    // Graceful fallback when MongoDB is not yet configured
+    return null;
   }
 
   if (!cached) {
@@ -40,7 +41,8 @@ async function connectToDatabase() {
     cached!.conn = await cached!.promise;
   } catch (e) {
     cached!.promise = null;
-    throw e;
+    console.warn("MongoDB connection failed:", e);
+    return null;
   }
 
   return cached!.conn;

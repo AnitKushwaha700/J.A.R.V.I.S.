@@ -12,14 +12,56 @@ export interface BetterWord {
   example: string;
 }
 
+export interface CodeBlock {
+  language: string;
+  content: string;
+}
+
+export interface RoadmapStep {
+  month: string;
+  focus: string;
+  resources: string;
+}
+
 export interface AIResponse {
+  // ── Universal ──
   reply: string;
+  displayText?: string;
+
+  // ── English Coach ──
   grammarFixes: GrammarFix[];
   betterWords: BetterWord[];
   pronunciationTip: string;
   confidenceScore: number;
   cefrLevel: CEFRLevel;
   encouragement: string;
+
+  // ── Coding Tutor ──
+  code?: CodeBlock | null;
+  timeComplexity?: string;
+  spaceComplexity?: string;
+  keyInsight?: string;
+  followUp?: string;
+
+  // ── Career Advisor ──
+  roadmap?: RoadmapStep[];
+  skills?: string[];
+  careerTip?: string;
+
+  // ── AI Teacher ──
+  subject?: string;
+  keyPoints?: string[];
+  example?: string;
+  quiz?: string;
+  nextTopic?: string;
+
+  // ── Translator ──
+  original?: string;
+  translated?: string;
+  fromLanguage?: string;
+  toLanguage?: string;
+  phonetic?: string;
+  culturalNote?: string;
 }
 
 // ─── CEFR Levels ──────────────────────────────────────────────────
@@ -38,10 +80,25 @@ export interface ChatMessage {
     cefrLevel: CEFRLevel;
     pronunciationTip?: string;
     encouragement?: string;
+    // Agent extras
+    code?: CodeBlock | null;
+    timeComplexity?: string;
+    spaceComplexity?: string;
+    keyInsight?: string;
+    roadmap?: RoadmapStep[];
+    skills?: string[];
+    careerTip?: string;
+    subject?: string;
+    keyPoints?: string[];
+    quiz?: string;
+    translated?: string;
+    fromLanguage?: string;
+    toLanguage?: string;
+    displayText?: string;
   };
 }
 
-// ─── Practice Modes ───────────────────────────────────────────────
+// ─── Practice Modes (English Coach) ───────────────────────────────
 export type PracticeModeSlug =
   | "free-talk"
   | "interview"
@@ -58,10 +115,32 @@ export interface PracticeMode {
   description: string;
   aiPersona: string;
   openingPrompt: string;
-  icon: string; // lucide icon name
-  color: string; // tailwind color class
-  gradient: string; // tailwind gradient
+  icon: string;
+  color: string;
+  gradient: string;
 }
+
+// ─── Agent Modes (Jarvis features) ────────────────────────────────
+export type AgentModeSlug =
+  | "coding-tutor"
+  | "career-advisor"
+  | "ai-teacher"
+  | "translator";
+
+export interface AgentMode {
+  slug: AgentModeSlug;
+  title: string;
+  description: string;
+  aiPersona: string;
+  openingPrompt: string;
+  icon: string;
+  color: string;
+  gradient: string;
+  category: "agent";
+}
+
+// ─── Unified mode slug type ────────────────────────────────────────
+export type AnyModeSlug = PracticeModeSlug | AgentModeSlug;
 
 // ─── Voice ────────────────────────────────────────────────────────
 export type VoiceState =
@@ -101,7 +180,7 @@ export interface DailyProgress {
 // ─── Conversation ─────────────────────────────────────────────────
 export interface ConversationSummary {
   id: string;
-  mode: PracticeModeSlug;
+  mode: AnyModeSlug;
   startedAt: Date;
   duration: number;
   messageCount: number;
@@ -111,9 +190,10 @@ export interface ConversationSummary {
 // ─── API Types ────────────────────────────────────────────────────
 export interface ChatRequest {
   message: string;
-  mode: PracticeModeSlug;
+  mode: AnyModeSlug;
   conversationId?: string;
   history: Array<{ role: "user" | "ai"; text: string }>;
+  language?: string;
 }
 
 export interface StreamChunk {

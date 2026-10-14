@@ -11,7 +11,10 @@ export async function GET() {
       return NextResponse.json({ mistakes: [] });
     }
 
-    await connectToDatabase();
+    const db = await connectToDatabase();
+    if (!db) {
+      return NextResponse.json({ mistakes: [] });
+    }
 
     const mistakes = await Mistake.find({ sessionId })
       .sort({ occurrences: -1, lastSeen: -1 })

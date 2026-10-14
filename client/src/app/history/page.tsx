@@ -27,9 +27,12 @@ import {
   Bot,
   XCircle,
   Lightbulb,
+  Code2,
+  BookOpenCheck,
+  Languages,
 } from "lucide-react";
 import Link from "next/link";
-import type { PracticeModeSlug } from "@/types";
+import type { AnyModeSlug } from "@/types";
 
 const iconMap: Record<string, React.ElementType> = {
   "free-talk": MessageCircle,
@@ -40,6 +43,10 @@ const iconMap: Record<string, React.ElementType> = {
   college: GraduationCap,
   shopping: ShoppingBag,
   debate: Swords,
+  "coding-tutor": Code2,
+  "career-advisor": TrendingUp,
+  "ai-teacher": BookOpenCheck,
+  translator: Languages,
 };
 
 const modeColorMap: Record<string, string> = {
@@ -51,11 +58,15 @@ const modeColorMap: Record<string, string> = {
   college: "from-amber-500 to-yellow-500",
   shopping: "from-pink-500 to-rose-500",
   debate: "from-red-500 to-rose-600",
+  "coding-tutor": "from-cyan-500 to-blue-600",
+  "career-advisor": "from-emerald-500 to-teal-600",
+  "ai-teacher": "from-violet-500 to-indigo-600",
+  translator: "from-amber-500 to-orange-600",
 };
 
 interface ConversationPreview {
   id: string;
-  mode: PracticeModeSlug;
+  mode: AnyModeSlug | string;
   messageCount: number;
   avgConfidence: number;
   duration: number;
