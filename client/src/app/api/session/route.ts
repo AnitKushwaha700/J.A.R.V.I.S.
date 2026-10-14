@@ -7,7 +7,18 @@ export async function GET() {
   try {
     const sessionId = await getOrCreateSessionId();
 
-    await connectToDatabase();
+    const db = await connectToDatabase();
+    if (!db) {
+      return NextResponse.json({
+        sessionId,
+        level: "A1",
+        streak: 0,
+        totalMinutes: 0,
+        xp: 0,
+        lastActiveAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+      });
+    }
 
     // Find or create user
     const user = await User.findOneAndUpdate(

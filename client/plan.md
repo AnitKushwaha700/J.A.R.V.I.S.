@@ -1,605 +1,659 @@
-# 🎙️ TalkMe-AI — Master Plan
+# 🤖 TalkMe-AI — Personal Jarvis AI Agent Plan
 
-> **Tagline:** *"Bolo English, Seekho English — bilkul free."*
-> **Vision:** Duniya ka sabse accessible, free AI English speaking coach.
+> **Tagline:** *"Your Free Personal AI Agent — Always On, Always Helpful."*
+> **Vision:** A Jarvis-like AI agent that talks, teaches, coaches, and solves — completely free, on any device.
 
 ---
 
-## 📌 1. Project Overview
+## 📌 1. What Is This Project?
 
-| Item | Details |
-|------|---------|
-| **Name** | TalkMe-AI |
-| **Type** | AI-powered English communication coach |
-| **Target Users** | English learners (India + global) |
-| **Cost** | 100% Free for users |
-| **Platform** | Web (PWA) — Chrome-first |
-| **Hosting** | Vercel (free) |
-| **Status** | Planning → Development |
+TalkMe-AI is a **voice-first personal AI agent** that works like Jarvis from Iron Man.
+It runs in the browser — no app download needed — and is 100% free using free-tier APIs.
+
+### ✅ What It Can Do (Full Feature List)
+
+| Category | Features |
+|----------|----------|
+| 🗣️ **Voice Agent** | Talk in any language, instant voice reply, barge-in, silence detection |
+| 🎓 **English Coach** | Grammar fix, vocabulary, pronunciation tips, CEFR level tracking |
+| 💼 **Interview Prep** | Mock HR/Tech interviews, feedback, sample answers |
+| 💻 **Coding Tutor** | Solve coding problems, explain concepts, debug code |
+| 🧑‍🏫 **AI Teacher** | Any subject — Math, Science, History, etc. |
+| 🚀 **Career Advisor** | Resume tips, career roadmaps, skill gap analysis |
+| 🌐 **Multilingual** | Hindi, Tamil, Telugu, Bangla, English + 50+ langs |
+| 📱 **Mobile + Desktop** | PWA — installable, works offline shell |
+| 🔒 **100% Free** | Gemini free tier, no credit card, no paywall |
 
 ---
 
 ## 🎯 2. Core Principles
 
-- ✅ **Free Forever** — No paywall, no signup wall
-- ✅ **Zero Friction** — Anonymous session, straight practice
-- ✅ **Real-Time** — Streaming responses, no wait
-- ✅ **Natural** — Human-like conversation, barge-in support
-- ✅ **Chrome-First** — Best on Chrome/Edge, fallback elsewhere
-- ✅ **Mobile-Friendly** — PWA, installable, offline shell
+- ✅ **Immediate Response** — Voice reply starts in < 1 second
+- ✅ **Free Forever** — Gemini Flash free tier (1500 req/day)
+- ✅ **Voice First** — Speak → AI speaks back (like a real agent)
+- ✅ **Any Language** — Understands and replies in your language
+- ✅ **Zero Friction** — No login required to start, just open and talk
+- ✅ **Mobile + Desktop** — PWA, installable on phone home screen
 
 ---
 
-## 🧩 3. Feature Roadmap
-
-### 🟢 MVP (Launch)
-- [ ] Text + Voice chat with AI
-- [ ] Live transcript (interim results)
-- [ ] Silence detection → auto send
-- [ ] AI voice output (streaming, sentence-by-sentence)
-- [ ] Grammar correction (inline)
-- [ ] Better vocabulary suggestions
-- [ ] Confidence score per message
-- [ ] Conversation history
-- [ ] Anonymous cookie session
-- [ ] 8 practice modes
-- [ ] Daily streak + minutes tracked
-- [ ] Mobile responsive + PWA
-
-### 🟡 Phase 2 (Post-Launch)
-- [ ] User accounts (email/Google)
-- [ ] Pronunciation tips
-- [ ] Word bank
-- [ ] Daily challenges
-- [ ] XP + Achievements
-- [ ] Progress charts
-- [ ] Voice picker
-
-### 🔵 Phase 3 (Future)
-- [ ] IELTS / TOEFL practice
-- [ ] Debate mode
-- [ ] Group discussion
-- [ ] Resume interview
-- [ ] Accent trainer
-- [ ] AI tutor memory (Vector DB)
-- [ ] Leaderboard
-
----
-
-## 🏗️ 4. Architecture
+## 🏗️ 3. Architecture Overview
 
 ```
-CLIENT (Chrome/Edge)
-  🎤 Mic → Web Speech API → Live Transcript
-  ↓ (1.5s silence)
-  📝 POST /api/chat (streaming)
-  ↓
-  🔊 Response → SpeechSynthesis (per sentence)
-  ↓
-  🛑 User speaks → AI stops (barge-in)
-        ↓
-NEXT.JS API ROUTES (Vercel)
-  /api/chat       → Gemini streaming + JSON parse
-  /api/session    → Anonymous cookie session
-  /api/history    → Conversation list
-  /api/progress   → Streak, minutes, scores
-        ↓
-  ┌────────────┬──────────────┬──────────────┐
-  │ Gemini API │ MongoDB Atlas│ Upstash Redis│
-  │ 1500/day   │ 512MB free   │ 10K cmd/day  │
-  └────────────┴──────────────┴──────────────┘
-        ↓
-  🚀 Vercel Deploy
+USER (Browser — Mobile or Desktop)
+   🎤 Mic → Web Speech API → Live Transcript
+   ↓ (1.5s silence OR Enter)
+   📝 POST /api/chat (Next.js Streaming)
+   ↓
+   🤖 Gemini 2.0 Flash (Free) → Streaming Response
+   ↓
+   🔊 SpeechSynthesis API → Instant voice reply
+   ↓
+   📝 Feedback Panel (grammar, code, career tips)
+   ↓
+   💾 MongoDB Atlas (free 512MB) — saves conversation
+
+FREE APIs USED:
+┌──────────────────┬────────────────────────┬──────────────────┐
+│ Service          │ Free Limit             │ What It Does     │
+├──────────────────┼────────────────────────┼──────────────────┤
+│ Gemini 2.0 Flash │ 1500 req/day, 15 RPM   │ AI Brain         │
+│ Web Speech API   │ Unlimited (browser)    │ Voice Input      │
+│ SpeechSynthesis  │ Unlimited (browser)    │ Voice Output     │
+│ MongoDB Atlas    │ 512MB free             │ Chat History     │
+│ Upstash Redis    │ 10K cmds/day           │ Rate Limiting    │
+│ Vercel           │ 100GB/mo free          │ Hosting          │
+│ better-auth      │ Free (self-hosted)     │ Auth (optional)  │
+└──────────────────┴────────────────────────┴──────────────────┘
+Total Cost: ₹0/month
 ```
 
 ---
 
-## 🗂️ 5. Folder Structure
+## 🧠 4. AI Agent Modes (Jarvis Personas)
 
-```
-talkme-ai/
-├── src/
-│   ├── app/
-│   │   ├── (marketing)/
-│   │   │   ├── page.tsx              # Landing
-│   │   │   └── about/page.tsx
-│   │   ├── (app)/
-│   │   │   ├── layout.tsx
-│   │   │   ├── practice/
-│   │   │   │   ├── page.tsx          # Mode selector
-│   │   │   │   └── [mode]/page.tsx   # Voice chat
-│   │   │   ├── dashboard/page.tsx
-│   │   │   ├── history/page.tsx
-│   │   │   ├── grammar/page.tsx
-│   │   │   ├── vocabulary/page.tsx
-│   │   │   └── settings/page.tsx
-│   │   ├── api/
-│   │   │   ├── chat/route.ts
-│   │   │   ├── session/route.ts
-│   │   │   ├── history/route.ts
-│   │   │   └── progress/route.ts
-│   │   ├── layout.tsx
-│   │   └── globals.css
-│   │
-│   ├── features/
-│   │   ├── voice/
-│   │   │   ├── hooks/
-│   │   │   │   ├── useSpeechRecognition.ts
-│   │   │   │   ├── useSpeechSynthesis.ts
-│   │   │   │   └── useSilenceDetector.ts
-│   │   │   ├── components/
-│   │   │   │   ├── VoiceOrb.tsx
-│   │   │   │   ├── LiveTranscript.tsx
-│   │   │   │   └── Waveform.tsx
-│   │   │   └── types.ts
-│   │   ├── coach/
-│   │   │   ├── prompts/
-│   │   │   │   ├── system.ts
-│   │   │   │   └── modes.ts
-│   │   │   ├── services/gemini.ts
-│   │   │   ├── schemas/response.ts
-│   │   │   └── parsers/streamParser.ts
-│   │   ├── chat/
-│   │   │   ├── components/
-│   │   │   │   ├── ChatBubble.tsx
-│   │   │   │   ├── FeedbackPanel.tsx
-│   │   │   │   └── TypingIndicator.tsx
-│   │   │   └── hooks/useChatStream.ts
-│   │   ├── progress/
-│   │   │   ├── components/
-│   │   │   │   ├── StreakCard.tsx
-│   │   │   │   ├── MinutesChart.tsx
-│   │   │   │   └── ScoreTrend.tsx
-│   │   │   └── hooks/useProgress.ts
-│   │   └── session/hooks/useSession.ts
-│   │
-│   ├── components/
-│   │   ├── ui/                       # shadcn
-│   │   └── shared/
-│   │       ├── Navbar.tsx
-│   │       ├── Sidebar.tsx
-│   │       └── ThemeToggle.tsx
-│   │
-│   ├── lib/
-│   │   ├── db.ts
-│   │   ├── redis.ts
-│   │   ├── rate-limit.ts
-│   │   ├── session.ts
-│   │   └── utils.ts
-│   │
-│   ├── models/
-│   │   ├── User.ts
-│   │   ├── Conversation.ts
-│   │   ├── Message.ts
-│   │   ├── Mistake.ts
-│   │   └── Progress.ts
-│   │
-│   ├── constants/
-│   │   ├── practice-modes.ts
-│   │   ├── cefr-levels.ts
-│   │   └── voices.ts
-│   │
-│   └── types/index.ts
-│
-├── public/
-│   ├── icons/
-│   ├── manifest.json
-│   └── og-image.png
-│
-├── .env.local
-├── next.config.js
-├── tailwind.config.ts
-├── tsconfig.json
-└── package.json
-```
+| Mode | Persona | What It Does | Trigger |
+|------|---------|-------------|---------|
+| 🎙️ **Free Talk** | Friendly AI | General conversation | "Let's talk" |
+| 🎓 **English Coach** | Strict coach | Grammar, fluency, vocabulary | "Fix my English" |
+| 💼 **Interview Prep** | HR Manager | Mock interviews + feedback | "Interview me" |
+| 💻 **Coding Tutor** | Senior Dev | DSA, debug, explain code | "Help me code" |
+| 🧑‍🏫 **AI Teacher** | Professor | Any subject teaching | "Teach me" |
+| 🚀 **Career Advisor** | Mentor | Resume, roadmap, skills | "Career advice" |
+| 🌍 **Translate** | Interpreter | Live translation | "Translate" |
+| 🧘 **Daily Standup** | PM | Plan your day, set goals | "Plan my day" |
 
 ---
 
-## 🧠 6. Core Flow
+## 🎤 5. Voice Agent — How It Works
 
-### Voice Input
+### Input Flow
 ```
-🎤 Click mic
-  ↓
-useSpeechRecognition.start()
-  ↓
-interimResults = true, continuous = true
-  ↓
-Live transcript (typing effect)
-  ↓
-Silence 1.5s → auto-send
-```
-
-### AI Response (Streaming)
-```
-POST /api/chat
-  ↓
-1. Rate limit check
-2. Get/create session
-3. Build prompt
-4. Gemini generateContentStream
-  ↓
-Stream chunks → sentence splitter → speak each
-  ↓
-Parse full JSON at end → update feedback panel
+User taps mic button
+   ↓
+Web Speech API starts (continuous: true, interimResults: true)
+   ↓
+Live transcript shown word-by-word
+   ↓
+1.5 seconds of silence → auto-submit (hands-free!)
+OR user presses Enter/Stop
+   ↓
+POST /api/chat with { message, mode, history, language }
 ```
 
-### Barge-In
+### Output Flow (Immediate < 500ms)
+```
+Gemini streams response token-by-token
+   ↓
+Sentence splitter: split on ". " "! " "? "
+   ↓
+First sentence → SpeechSynthesis.speak() immediately!
+   ↓
+Continue streaming + speaking sentence by sentence
+   ↓
+User speaks → AI pauses (barge-in)
+   ↓
+Parse full JSON at stream end → show feedback panel
+```
+
+### Barge-In (Jarvis feel)
 ```typescript
 recognition.onresult = (event) => {
-  if (speechSynthesis.speaking && transcript.length > 3) {
-    speechSynthesis.cancel();
+  const transcript = event.results[event.resultIndex][0].transcript;
+  if (speechSynthesis.speaking && transcript.length > 2) {
+    speechSynthesis.cancel(); // AI stops talking immediately
   }
 };
 ```
 
 ---
 
-## 📊 7. AI Response Schema
+## 💻 6. Coding Problem Solver
 
+### User Flow
+1. User says: *"How do I find the longest palindrome in a string?"*
+2. AI detects it's a coding question
+3. AI responds with:
+   - ✅ Plain English explanation (spoken)
+   - ✅ Step-by-step approach
+   - ✅ Clean code (Python/JS/Java/C++)
+   - ✅ Time & Space complexity
+   - ✅ Example input/output
+
+### Special Coding UI
+- Syntax-highlighted code block
+- Copy code button
+- "Explain this line" button (future)
+- Language selector (Python, JS, Java, C++)
+
+---
+
+## 🎓 7. English Coach Features
+
+### Grammar Correction (Real-time)
 ```json
 {
-  "reply": "That's a great start! Tell me more.",
-  "grammarFixes": [
-    {
-      "wrong": "I go to office yesterday",
-      "right": "I went to the office yesterday",
-      "why": "Past event → past tense",
-      "severity": "medium"
-    }
-  ],
-  "betterWords": [
-    {
-      "youSaid": "good",
-      "better": "fantastic",
-      "example": "I had a fantastic day."
-    }
-  ],
-  "pronunciationTip": "Focus on 'th' sound",
-  "confidenceScore": 72,
-  "cefrLevel": "B1",
-  "encouragement": "Your fluency is improving!"
+  "wrong": "I am go to market yesterday",
+  "right": "I went to the market yesterday",
+  "why": "Past event → use Simple Past tense",
+  "severity": "high"
 }
+```
+
+### Vocabulary Enhancement
+```json
+{
+  "youSaid": "very good",
+  "better": "exceptional / outstanding",
+  "example": "Your performance was exceptional!"
+}
+```
+
+### Interview Prep Flow
+```
+AI: "Tell me about yourself."
+User: [speaks]
+AI: "Good start! Your answer lacks a clear conclusion.
+     Try ending with: 'I'm excited to bring my skills to your team.'
+     Grammar score: 72%. Here are 2 corrections..."
+```
+
+### CEFR Level Tracking
+- A1 → A2 → B1 → B2 → C1 → C2
+- Auto-detected from speech complexity
+- Shown as badge in UI
+
+---
+
+## 🚀 8. Career Advisor Features
+
+AI acts as a senior career mentor with context about Indian job market:
+
+### Example Conversation
+```
+User: "I'm a 2nd year CSE student. What should I do for placements?"
+AI: "Here's your 6-month roadmap:
+     ► Month 1-2: DSA — LeetCode 150 problems
+     ► Month 3: System Design basics
+     ► Month 4: 2 solid GitHub projects
+     ► Month 5: Apply + resume polish
+     ► Month 6: Daily mock interviews
+     
+     Best tech stack: React + Node.js + MongoDB
+     OR Java + Spring Boot + MySQL
+     
+     Want me to quiz you on DSA today?"
 ```
 
 ---
 
-## 🎭 8. Practice Modes
+## 🌍 9. Multilingual Support
 
-| Mode | AI Persona | Prompt |
-|------|-----------|--------|
-| Free Talk | Friendly friend | "Kuch bhi baat karo" |
-| Interview | HR manager | "Tell me about yourself" |
-| Restaurant | Waiter | "What would you like?" |
-| Airport | Check-in staff | "May I see your passport?" |
-| Office | Colleague | "Join the meeting at 3?" |
-| College | Classmate | "Did you understand?" |
-| Shopping | Shopkeeper | "How can I help?" |
-| Debate | Opponent | "I disagree — explain" |
+Web Speech API supports 50+ languages natively.
+Gemini 2.0 Flash supports all major languages.
+
+| Language | Voice Input | Voice Output |
+|----------|-------------|-------------|
+| English | ✅ | ✅ |
+| Hindi | ✅ | ✅ |
+| Tamil | ✅ | ✅ |
+| Telugu | ✅ | ✅ |
+| Bengali | ✅ | ✅ |
+| Marathi | ✅ | ✅ |
+| Spanish | ✅ | ✅ |
+| French | ✅ | ✅ |
 
 ---
 
-## 🗄️ 9. Database Schema
+## 🗂️ 10. Folder Structure
+
+```
+client/src/
+├── app/
+│   ├── page.tsx                    # Landing page
+│   ├── layout.tsx                  # Root layout + PWA
+│   ├── (agent)/
+│   │   ├── chat/page.tsx           # Main voice chat ← START HERE
+│   │   ├── dashboard/page.tsx      # Stats + streak
+│   │   ├── history/page.tsx        # Past conversations
+│   │   ├── coding/page.tsx         # Code editor + AI
+│   │   ├── career/page.tsx         # Career advisor
+│   │   └── settings/page.tsx       # Lang, voice, theme
+│   └── api/
+│       ├── chat/route.ts           # AI endpoint (streaming)
+│       ├── session/route.ts        # Anonymous sessions
+│       └── history/route.ts        # Conversation history
+│
+├── features/
+│   ├── voice/
+│   │   ├── hooks/
+│   │   │   ├── useSpeechRecognition.ts
+│   │   │   ├── useSpeechSynthesis.ts
+│   │   │   └── useSilenceDetector.ts
+│   │   └── components/
+│   │       ├── VoiceOrb.tsx         # Animated orb
+│   │       ├── LiveTranscript.tsx
+│   │       └── Waveform.tsx
+│   │
+│   ├── agent/
+│   │   ├── prompts/
+│   │   │   ├── system.ts            # Master system prompt
+│   │   │   ├── english-coach.ts
+│   │   │   ├── interview.ts
+│   │   │   ├── coding.ts
+│   │   │   ├── teacher.ts
+│   │   │   └── career.ts
+│   │   └── services/gemini.ts       # Gemini client
+│   │
+│   └── chat/
+│       └── components/
+│           ├── ChatBubble.tsx
+│           ├── CodeBlock.tsx        # Syntax highlighted
+│           └── FeedbackPanel.tsx
+│
+├── lib/
+│   ├── db.ts                        # MongoDB connection
+│   ├── session.ts                   # Cookie sessions
+│   ├── rate-limit.ts                # Upstash Redis
+│   └── utils.ts
+│
+└── models/
+    ├── Session.ts
+    ├── Conversation.ts
+    └── Message.ts
+```
+
+---
+
+## 🔑 11. Free API Setup Guide
+
+### Step 1: Gemini API (AI Brain) — FREE
+```
+→ Go to: https://aistudio.google.com/apikey
+→ Click "Create API Key"
+→ Copy key → add to .env.local
+→ Model: gemini-2.0-flash
+→ Free: 1500 requests/day, 15 RPM
+```
+
+### Step 2: MongoDB Atlas (Database) — FREE
+```
+→ Go to: https://cloud.mongodb.com
+→ Create free M0 cluster (512MB forever free)
+→ Create database user
+→ Copy connection string → add to .env.local
+```
+
+### Step 3: Upstash Redis (Rate Limiting) — FREE
+```
+→ Go to: https://upstash.com
+→ Create free Redis database
+→ 10,000 commands/day free
+→ Copy REST URL + Token → add to .env.local
+```
+
+### Step 4: Vercel (Hosting) — FREE
+```
+→ Go to: https://vercel.com
+→ Connect GitHub repo
+→ Add environment variables
+→ Deploy! Auto-deploys on every git push
+```
+
+### .env.local
+```env
+# AI (FREE)
+GEMINI_API_KEY=your_key_here
+
+# Database (FREE)
+MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/talkme
+
+# Rate Limiting (FREE)
+UPSTASH_REDIS_REST_URL=https://xxx.upstash.io
+UPSTASH_REDIS_REST_TOKEN=your_token
+
+# Session Security
+SESSION_SECRET=min_32_chars_random_string_here
+
+# App
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+---
+
+## 📅 12. Week-by-Week Build Plan
+
+### ✅ Week 1 — Core Voice Agent (Days 1–7)
+**Goal: Talk to AI, AI talks back immediately**
+
+| Day | Task | Output |
+|-----|------|--------|
+| 1 | .env setup, MongoDB connect, Session model | DB working |
+| 2 | `/api/chat` route with Gemini streaming | Text AI response |
+| 3 | `useSpeechRecognition` hook (mic → text) | Voice input |
+| 4 | `useSpeechSynthesis` + sentence splitter | AI speaks back |
+| 5 | Silence detector (1.5s → auto-send) | Hands-free mode |
+| 6 | Barge-in + VoiceOrb animated component | Jarvis feel |
+| 7 | Basic chat page UI + test on mobile | MVP working |
+
+**✅ Milestone: Full voice conversation loop**
+
+---
+
+### ✅ Week 2 — English Coach Mode (Days 8–14)
+**Goal: Real-time grammar + vocabulary correction**
+
+| Day | Task | Output |
+|-----|------|--------|
+| 8 | Structured coach prompt + Zod schema | JSON AI response |
+| 9 | FeedbackPanel component | Grammar shown |
+| 10 | Vocabulary suggestions UI | Better words shown |
+| 11 | CEFR level badge | Level displayed |
+| 12 | Interview prep mode | HR interview flow |
+| 13 | Confidence score display | Score shown |
+| 14 | Mobile testing all English features | Mobile working |
+
+**✅ Milestone: Real-time English coaching**
+
+---
+
+### ✅ Week 3 — Coding Tutor (Days 15–21)
+**Goal: AI solves coding problems, shows code**
+
+| Day | Task | Output |
+|-----|------|--------|
+| 15 | Coding mode system prompt | AI explains code |
+| 16 | CodeBlock component (syntax highlight) | Code displayed |
+| 17 | Multi-language support (Py/JS/Java/C++) | Language selector |
+| 18 | DSA problem detection + O(n) display | Complexity shown |
+| 19 | Step-by-step explanation flow | Clear explanations |
+| 20 | Code copy button | Usability feature |
+| 21 | Full coding mode polish + test | Coding AI ready |
+
+**✅ Milestone: Voice coding assistant**
+
+---
+
+### ✅ Week 4 — Career + Teacher + Multilingual (Days 22–28)
+**Goal: Career advice, teaching, all languages**
+
+| Day | Task | Output |
+|-----|------|--------|
+| 22 | Career advisor system prompt | Career roadmaps |
+| 23 | AI Teacher mode (any subject) | Multi-subject |
+| 24 | Language picker UI + settings | Language selector |
+| 25 | Web Speech API language switching | Hindi/Tamil/etc. |
+| 26 | AI auto-detects user language | Auto-language |
+| 27 | All 8 modes fully working | Mode switcher |
+| 28 | Conversation history page | History saved |
+
+**✅ Milestone: Full personal AI agent**
+
+---
+
+### ✅ Week 5 — Dashboard + Progress (Days 29–35)
+**Goal: Track growth, keep users coming back**
+
+| Day | Task | Output |
+|-----|------|--------|
+| 29 | Dashboard with streak counter | Streak working |
+| 30 | Progress charts | Visual progress |
+| 31 | Mistake pattern tracking | Common errors |
+| 32 | Daily challenges | Daily goals |
+| 33 | XP points + achievements | Gamification |
+| 34 | Word bank (saved vocabulary) | Vocab list |
+| 35 | Settings (lang, voice, theme) | Full settings |
+
+**✅ Milestone: Retention features ready**
+
+---
+
+### ✅ Week 6 — PWA + Deploy + Launch (Days 36–42)
+**Goal: Live on internet, installable on mobile**
+
+| Day | Task | Output |
+|-----|------|--------|
+| 36 | PWA manifest + service worker | Installable on phone |
+| 37 | PWA icons (192px, 512px) | Native app look |
+| 38 | Rate limiting (Upstash Redis) | Abuse prevention |
+| 39 | Error boundaries + fallbacks | Graceful errors |
+| 40 | Landing page (beautiful, animated) | Wow first impression |
+| 41 | SEO meta + OG image | Social sharing |
+| 42 | Deploy to Vercel 🚀 | LIVE! |
+
+**✅ Milestone: App is LIVE and installable**
+
+---
+
+## 🎨 13. UI Design Plan
+
+### Voice Orb (Main Element)
+```
+◉ ◉ ◉ ◉ ◉
+Pulsing indigo gradient animation
+— Idle: slow pulse
+— Listening: fast, bright pulse + waveform
+— AI Speaking: rainbow shimmer animation
+— Thinking: spinning ring
+```
+
+### Design System
+```
+Colors:
+  --bg:        #0F0F1A   (deep dark background)
+  --surface:   #1A1A2E   (card background)
+  --primary:   #6366F1   (indigo — voice orb)
+  --secondary: #8B5CF6   (purple — AI messages)
+  --success:   #10B981   (emerald — correct)
+  --error:     #F43F5E   (rose — grammar error)
+  --warning:   #F59E0B   (amber — streak)
+  --glass:     rgba(255,255,255,0.05) (glassmorphism)
+
+Typography: Inter + Outfit (Google Fonts)
+
+Effects:
+  - Voice orb: pulsing gradient animation (Framer Motion)
+  - Messages: fade + slide in
+  - Typing indicator: animated 3 dots
+  - Code blocks: VS Code dark theme
+  - Mode cards: glassmorphism + glow on hover
+  - Feedback panel: slide up from bottom (mobile)
+```
+
+---
+
+## 🤖 14. Master AI Prompt
 
 ```typescript
-// User
-{
-  _id, sessionId,
-  email?, name?,
-  level: 'A1'|'A2'|'B1'|'B2'|'C1'|'C2',
-  streak, totalMinutes, xp,
-  createdAt, lastActiveAt
-}
+const SYSTEM_PROMPT = `
+You are TalkMe AI — a personal AI agent like Jarvis.
+You help with: English learning, interview prep, coding, career advice.
 
-// Conversation
-{
-  _id, userId, mode,
-  startedAt, endedAt, duration,
-  messageCount, avgConfidence
-}
+CURRENT MODE: {mode}
+USER LANGUAGE: {language}  
+USER LEVEL: {level}
 
-// Message
-{
-  _id, conversationId, role: 'user'|'ai',
-  text, audioDuration?,
-  analysis: {
-    grammarFixes[], betterWords[],
-    confidenceScore, cefrLevel
-  },
-  createdAt
-}
+RULES:
+1. Reply in user's language (unless they ask for English)
+2. Keep spoken reply SHORT — 2-3 sentences for voice
+3. For coding: always include working code + complexity
+4. For English mode: ALWAYS return JSON with grammar fixes
+5. Be encouraging, friendly, like a smart friend
+6. Career advice: specific to Indian job market
 
-// Mistake
+RESPONSE FORMAT (JSON):
 {
-  _id, userId, type,
-  wrong, right, why,
-  occurrences, lastSeen
+  "reply": "spoken response — short and natural",
+  "displayText": "full formatted markdown text",
+  "code": { "language": "python", "content": "..." },
+  "grammarFixes": [{ "wrong": "", "right": "", "why": "" }],
+  "betterWords": [{ "youSaid": "", "better": "", "example": "" }],
+  "confidenceScore": 0-100,
+  "cefrLevel": "B1",
+  "careerTip": "...",
+  "encouragement": "Keep going!"
 }
-
-// Progress
-{
-  _id, userId, date,
-  minutes, messages, grammarScore,
-  newWords, streakMaintained
-}
+`;
 ```
 
 ---
 
-## 📅 10. 6-Week Execution Plan
+## 💰 15. Free Tier Math
 
-### Week 1 — Foundation & Text Chat
-- [ ] Day 1: Setup Next.js + Tailwind + shadcn
-- [ ] Day 2: MongoDB Atlas + lib/db.ts
-- [ ] Day 3: Anonymous session
-- [ ] Day 4: Gemini client + /api/chat
-- [ ] Day 5: Practice page UI (text)
-- [ ] Day 6: Save to DB + history API
-- [ ] Day 7: Test + commit
-- **✅ Milestone:** Text MVP
+| Service | Free Limit | Your Usage | Cost |
+|---------|-----------|------------|------|
+| Gemini | 1500 req/day | ~75 users × 20 msg | ₹0 |
+| MongoDB | 512MB | ~500K messages | ₹0 |
+| Upstash | 10K cmd/day | Rate checks | ₹0 |
+| Vercel | 100GB/mo | Static + API | ₹0 |
+| Web Speech | Unlimited | Voice I/O | ₹0 |
+| **Total** | — | — | **₹0** |
 
-### Week 2 — Voice Input
-- [ ] Day 8: useSpeechRecognition
-- [ ] Day 9: Live transcript UI
-- [ ] Day 10: useSilenceDetector
-- [ ] Day 11: VoiceOrb component
-- [ ] Day 12: Wire mic → chat
-- [ ] Day 13: Browser fallbacks
-- [ ] Day 14: Mobile testing
-- **✅ Milestone:** Voice input
-
-### Week 3 — AI Voice + Streaming
-- [ ] Day 15: useSpeechSynthesis
-- [ ] Day 16: Voice picker
-- [ ] Day 17: Gemini streaming
-- [ ] Day 18: Sentence parser
-- [ ] Day 19: Barge-in
-- [ ] Day 20: Chrome chunking fix
-- [ ] Day 21: Full loop test
-- **✅ Milestone:** Voice chat
-
-### Week 4 — English Coach
-- [ ] Day 22: Structured prompt
-- [ ] Day 23: Zod schema
-- [ ] Day 24: FeedbackPanel UI
-- [ ] Day 25: Mistake aggregation
-- [ ] Day 26: 8 practice modes
-- [ ] Day 27: Confidence + CEFR
-- [ ] Day 28: Polish
-- **✅ Milestone:** Coach ready
-
-### Week 5 — Progress & History
-- [ ] Day 29: History page
-- [ ] Day 30: Replay conversation
-- [ ] Day 31: Dashboard streak
-- [ ] Day 32: Progress charts
-- [ ] Day 33: Grammar review
-- [ ] Day 34: Word bank
-- [ ] Day 35: Daily challenges
-- **✅ Milestone:** Retention
-
-### Week 6 — PWA & Deploy
-- [ ] Day 36: next-pwa setup
-- [ ] Day 37: Manifest + icons
-- [ ] Day 38: Rate limiting
-- [ ] Day 39: Error boundaries
-- [ ] Day 40: SEO + landing
-- [ ] Day 41: Vercel deploy
-- [ ] Day 42: Launch! 🚀
-- **✅ Milestone:** LIVE
+### Scaling (When Popular)
+1. **0–75 users/day:** 100% free ✅
+2. **75–300 users/day:** Rotate multiple Gemini keys
+3. **300–1000 users/day:** Gemini paid (~$0.075/1M tokens)
+4. Cache common questions → save 40% API calls
 
 ---
 
-## 💰 11. Cost & Limits
+## 📱 16. PWA Setup
 
-| Service | Free Limit | Supports |
-|---------|-----------|----------|
-| Vercel | 100GB/mo | ~10K users |
-| MongoDB Atlas | 512MB | ~100K chats |
-| Gemini API | 1500/day | ~100 users/day |
-| Upstash Redis | 10K cmd/day | Rate limit |
-| Web Speech API | Free | Unlimited |
-| SpeechSynthesis | Free | Unlimited |
-| **Total** | **₹0/month** | Until 100+ daily |
-
-**Scaling:**
-1. Rate limit 20 msg/user/day
-2. Gemini key rotation
-3. Response caching
-4. Paid tier when needed
-
----
-
-## 🎨 12. UI/UX
-
-### Practice Screen
-```
-┌─────────────────────────────────────┐
-│ [Interview] [B1]           [⚙️]     │
-├─────────────────────────────────────┤
-│                                     │
-│          🔵 🔵 🔵                   │
-│         (Voice Orb)                 │
-│        [Tap to speak]               │
-│                                     │
-│  ── Live Transcript ──              │
-│  "I am going to office..."          │
-├─────────────────────────────────────┤
-│  💬 Chat History                    │
-├─────────────────────────────────────┤
-│  📝 Feedback                        │
-│  ❌ "I go" → ✅ "I went"            │
-│  💡 "good" → "fantastic"            │
-│  📊 Confidence: 72%                 │
-└─────────────────────────────────────┘
+### manifest.json
+```json
+{
+  "name": "TalkMe AI — Your Personal Jarvis",
+  "short_name": "TalkMe AI",
+  "description": "Voice AI agent for learning, coding & career",
+  "start_url": "/chat",
+  "display": "standalone",
+  "background_color": "#0F0F1A",
+  "theme_color": "#6366F1",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512" }
+  ]
+}
 ```
 
-### Colors
-- Primary: `#6366F1` (Indigo)
-- Success: `#10B981` (Emerald)
-- Error: `#F43F5E` (Rose)
-- Streak: `#F59E0B` (Amber)
+### Mobile Benefits
+- ✅ Add to Home Screen → looks like native app
+- ✅ Full screen, no browser chrome
+- ✅ Works offline (shell cached)
+- ✅ Fast loading (cached assets)
 
 ---
 
-## 🔐 13. Security
+## 🔐 17. Security Checklist
 
-- [ ] Gemini key only in API route
-- [ ] .env.local in .gitignore
-- [ ] Rate limiting per session
-- [ ] Zod input validation
-- [ ] Transcript length limit (500 chars)
-- [ ] HTTPS only
-- [ ] CSP headers
-- [ ] No PII without consent
-
----
-
-## 📊 14. Success Metrics
-
-| Metric | Month 1 Target |
-|--------|---------------|
-| Unique users | 500+ |
-| Avg session | 5+ min |
-| Returning users | 20% |
-| Conversations/user | 3+ |
-| PWA installs | 100+ |
-| Cost | ₹0 |
+- [ ] Gemini key only in API routes (never `NEXT_PUBLIC_`)
+- [ ] `.env.local` in `.gitignore`
+- [ ] Rate limit: 20 messages/user/day (Upstash)
+- [ ] Zod validation on all inputs
+- [ ] Input limit: 1000 characters max
+- [ ] HTTPS enforced (Vercel automatic)
+- [ ] Session IDs are random UUIDs
 
 ---
 
-## 🛠️ 15. Tech Stack
+## 🚀 18. Start TODAY
 
-```yaml
-Frontend:
-  - Next.js 15 (App Router)
-  - TypeScript
-  - Tailwind CSS
-  - shadcn/ui
-  - Framer Motion
-  - Recharts
-
-Backend:
-  - Next.js Route Handlers
-  - Zod
-
-Database:
-  - MongoDB Atlas + Mongoose
-
-Rate Limiting:
-  - Upstash Redis
-
-AI:
-  - Google Gemini (gemini-1.5-flash)
-
-Voice:
-  - Web Speech API (input)
-  - SpeechSynthesis API (output)
-
-PWA:
-  - next-pwa
-
-Hosting:
-  - Vercel
-```
-
----
-
-## ✅ 16. MVP Checklist
-
-- [ ] Chrome pe mic works
-- [ ] Live transcript visible
-- [ ] 1.5s silence → auto respond
-- [ ] AI speaks sentence-by-sentence
-- [ ] Barge-in works
-- [ ] Grammar mistakes shown
-- [ ] Better words suggested
-- [ ] 8 practice modes
-- [ ] Conversation saved
-- [ ] Dashboard streak + minutes
-- [ ] Landing page
-- [ ] Vercel deployed
-- [ ] PWA installable
-- [ ] Free for everyone
-
----
-
-## 🚀 17. Launch Plan
-
-**Day 42:**
-1. Deploy to Vercel
-2. Custom domain (optional)
-3. Post on:
-   - Twitter/X
-   - LinkedIn
-   - Reddit (r/EnglishLearning)
-   - Product Hunt
-4. Monitor Gemini usage
-5. Collect feedback
-6. Weekly updates
-
----
-
-## 📝 18. Development Rules
-
-1. TypeScript everywhere — no `any`
-2. Feature-based folders
-3. Commit daily: `feat:`, `fix:`, `docs:`
-4. Test on real phone every 2 days
-5. Chrome first
-6. Prompt tuning = 2 full days
-7. Never expose keys
-8. Ship weekly — done > perfect
-
----
-
-## 🎬 19. Immediate Next Steps
-
-**Aaj:**
+### Install Missing Package
 ```bash
-npx create-next-app@latest talkme-ai --typescript --tailwind --app
-cd talkme-ai
-npx shadcn@latest init
-npm install @google/generative-ai mongoose zod framer-motion recharts
+cd c:\Users\kushw\Future-Projects\TalkMe-AI\client
+npm install @upstash/redis highlight.js
 ```
 
-**Kal:**
-- MongoDB Atlas free cluster
-- Gemini API key
-- .env.local setup
-- lib/db.ts + lib/session.ts
+### File Creation Order (Follow This)
+```
+Day 1:
+1. src/lib/db.ts              ← MongoDB connection
+2. src/lib/session.ts         ← Cookie sessions
+3. src/models/Session.ts
+4. src/models/Conversation.ts
+5. src/app/api/session/route.ts
+6. src/app/api/chat/route.ts  ← Gemini streaming
 
-**Is hafte:**
-- Text chat MVP
-- GitHub repo public
-- First commit
+Day 2:
+7. src/features/agent/prompts/system.ts
+8. src/features/voice/hooks/useSpeechRecognition.ts
+9. src/features/voice/hooks/useSpeechSynthesis.ts
+10. src/features/voice/hooks/useSilenceDetector.ts
 
----
+Day 3:
+11. src/features/voice/components/VoiceOrb.tsx
+12. src/app/(agent)/chat/page.tsx  ← MAIN UI
+```
 
-## 🔮 20. Post-Launch Roadmap
-
-**Month 2:**
-- User accounts
-- Pronunciation feedback
-- Daily challenges + XP
-
-**Month 3:**
-- IELTS/TOEFL modes
-- Word bank + flashcards
-- Mobile app (TWA)
-
-**Month 4+:**
-- Group discussion rooms
-- Leaderboard
-- AI tutor memory
-- Accent trainer
+### Day 3 Test (Your First Jarvis Moment!)
+- [ ] Open browser, click mic
+- [ ] Say: "Hello, who are you?"
+- [ ] AI says: "I'm TalkMe AI, your personal assistant!"
+- [ ] 🎉
 
 ---
 
-**Last Updated:** _[Yeh date daal do jab update karo]_
-**Maintainer:** _[Tumhara naam]_
-**License:** MIT (free for everyone)
+## 📊 19. Success Metrics
+
+| Metric | Week 1 | Month 1 | Month 3 |
+|--------|--------|---------|---------|
+| Voice loop | ✅ | ✅ | ✅ |
+| Modes | 1 | 8 | 10+ |
+| Users | you | 50+ | 500+ |
+| Session length | - | 8 min | 12 min |
+| PWA installs | 0 | 20 | 200+ |
+| Monthly cost | ₹0 | ₹0 | ₹0 |
 
 ---
 
-> 💡 **Mantra:** *"Bolo, galti karo, seekho — TalkMe-AI tumhare saath hai."*
+## ✅ 20. Final MVP Checklist
+
+**Voice**
+- [ ] Mic works in Chrome + Mobile Chrome
+- [ ] Live transcript visible
+- [ ] 1.5s silence → auto-send
+- [ ] AI speaks back immediately
+- [ ] Barge-in works (user can interrupt AI)
+
+**AI Features**
+- [ ] English grammar correction
+- [ ] Vocabulary suggestions
+- [ ] Interview prep mode
+- [ ] Coding problem solver with code
+- [ ] Career roadmap advisor
+- [ ] Hindi + regional language support
+
+**App Quality**
+- [ ] Dark glassmorphism UI (premium look)
+- [ ] PWA installable on Android
+- [ ] Anonymous sessions (no login needed)
+- [ ] Conversation history saved
+- [ ] Dashboard with streak counter
+- [ ] Stunning landing page
+- [ ] Deployed on Vercel
+
+---
+
+> 💡 **Mantra:** *"Talk, Learn, Grow — Your Personal Jarvis, Forever Free."*
+
+**Last Updated:** 2026-10-14 | **Status:** 🔨 Building | **License:** MIT

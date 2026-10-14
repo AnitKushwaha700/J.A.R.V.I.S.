@@ -11,7 +11,10 @@ export async function GET() {
       return NextResponse.json({ conversations: [] });
     }
 
-    await connectToDatabase();
+    const db = await connectToDatabase();
+    if (!db) {
+      return NextResponse.json({ conversations: [] });
+    }
 
     const conversations = await Conversation.find({ sessionId })
       .sort({ createdAt: -1 })

@@ -1,10 +1,11 @@
 "use client";
 
 import { useCallback, useRef, useState, useEffect } from "react";
-import type { AIResponse, ChatMessage, PracticeModeSlug } from "@/types";
+import type { AIResponse, ChatMessage, AnyModeSlug } from "@/types";
 
 interface UseChatStreamOptions {
-  mode: PracticeModeSlug;
+  mode: AnyModeSlug;
+  language?: string;
   onResponse?: (response: AIResponse) => void;
   onError?: (error: string) => void;
 }
@@ -21,7 +22,7 @@ interface UseChatStreamReturn {
 export function useChatStream(
   options: UseChatStreamOptions
 ): UseChatStreamReturn {
-  const { mode, onResponse, onError } = options;
+  const { mode, language, onResponse, onError } = options;
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -30,8 +31,7 @@ export function useChatStream(
 
   const onResponseRef = useRef(onResponse);
   const onErrorRef = useRef(onError);
-  
-  // Update refs in an effect to avoid the "Cannot access refs during render" error
+
   useEffect(() => {
     onResponseRef.current = onResponse;
     onErrorRef.current = onError;
@@ -65,6 +65,7 @@ export function useChatStream(
             mode,
             conversationId: conversationIdRef.current,
             history,
+            language: language || "en-US",
           }),
         });
 
@@ -74,8 +75,10 @@ export function useChatStream(
 
         const aiResponse: AIResponse = await response.json();
 
-  // Store conversation ID from response headers or generate one
-        if (!conversationIdRef.current && response.headers.get("x-conversation-id")) {
+        if (
+          !conversationIdRef.current &&
+          response.headers.get("x-conversation-id")
+        ) {
           const newId = response.headers.get("x-conversation-id")!;
           conversationIdRef.current = newId;
           setConversationId(newId);
@@ -93,6 +96,21 @@ export function useChatStream(
             cefrLevel: aiResponse.cefrLevel,
             pronunciationTip: aiResponse.pronunciationTip,
             encouragement: aiResponse.encouragement,
+            // Agent extras
+            code: aiResponse.code,
+            timeComplexity: aiResponse.timeComplexity,
+            spaceComplexity: aiResponse.spaceComplexity,
+            keyInsight: aiResponse.keyInsight,
+            roadmap: aiResponse.roadmap,
+            skills: aiResponse.skills,
+            careerTip: aiResponse.careerTip,
+            subject: aiResponse.subject,
+            keyPoints: aiResponse.keyPoints,
+            quiz: aiResponse.quiz,
+            translated: aiResponse.translated,
+            fromLanguage: aiResponse.fromLanguage,
+            toLanguage: aiResponse.toLanguage,
+            displayText: aiResponse.displayText,
           },
         };
 
@@ -106,12 +124,17 @@ export function useChatStream(
         console.error("Chat error:", errorMsg);
         onErrorRef.current?.(errorMsg);
 
-        // Add error message to chat
         const errorMessage: ChatMessage = {
           id: `error-${Date.now()}`,
           role: "ai",
           text: "Sorry, I had trouble processing that. Could you try again?",
           timestamp: new Date(),
+          analysis: {
+            grammarFixes: [],
+            betterWords: [],
+            confidenceScore: 0,
+            cefrLevel: "B1",
+          },
         };
         setMessages((prev) => [...prev, errorMessage]);
 
@@ -120,7 +143,7 @@ export function useChatStream(
         setIsLoading(false);
       }
     },
-    [messages, mode, isLoading]
+    [messages, mode, language, isLoading]
   );
 
   const clearMessages = useCallback(() => {
@@ -135,11 +158,15 @@ export function useChatStream(
       role: "ai",
       text,
       timestamp: new Date(),
+      analysis: {
+        grammarFixes: [],
+        betterWords: [],
+        confidenceScore: 0,
+        cefrLevel: "B1",
+      },
     };
     setMessages((prev) => [...prev, message]);
   }, []);
-
-
 
   return {
     messages,

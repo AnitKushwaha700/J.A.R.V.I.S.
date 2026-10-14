@@ -18,7 +18,13 @@ export async function GET(
       );
     }
 
-    await connectToDatabase();
+    const db = await connectToDatabase();
+    if (!db) {
+      return NextResponse.json(
+        { error: "Database not connected" },
+        { status: 503 }
+      );
+    }
 
     const conversation = await Conversation.findOne({
       _id: id,

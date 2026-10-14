@@ -11,7 +11,10 @@ export async function GET() {
       return NextResponse.json({ words: [] });
     }
 
-    await connectToDatabase();
+    const db = await connectToDatabase();
+    if (!db) {
+      return NextResponse.json({ words: [] });
+    }
 
     // Aggregate all betterWords suggestions from all conversations
     const conversations = await Conversation.find({ sessionId })
