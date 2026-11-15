@@ -10,11 +10,14 @@ export async function GET() {
     const db = await connectToDatabase();
     if (!db) {
       return NextResponse.json({
+        ready: true,
         sessionId,
         level: "A1",
         streak: 0,
         totalMinutes: 0,
         xp: 0,
+        aiConfigured: Boolean(process.env.XAI_API_KEY || process.env.GEMINI_API_KEY),
+        model: process.env.XAI_MODEL?.trim() || "grok-4.7",
         lastActiveAt: new Date().toISOString(),
         createdAt: new Date().toISOString(),
       });
@@ -37,11 +40,14 @@ export async function GET() {
     );
 
     return NextResponse.json({
+      ready: true,
       sessionId: user.sessionId,
       level: user.level,
       streak: user.streak,
       totalMinutes: user.totalMinutes,
       xp: user.xp,
+      aiConfigured: Boolean(process.env.XAI_API_KEY || process.env.GEMINI_API_KEY),
+      model: process.env.XAI_MODEL?.trim() || "grok-4.7",
       lastActiveAt: user.lastActiveAt,
       createdAt: user.createdAt,
     });

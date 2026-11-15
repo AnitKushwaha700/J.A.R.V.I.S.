@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "./jarvis.css";
+@import "./jarvis-experience.css";
+@import "./jarvis-responsive.css";
 
 @custom-variant dark (&:is(.dark *));
 

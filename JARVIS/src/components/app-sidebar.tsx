@@ -40,6 +40,7 @@ const data = {
       title: "Navigation",
       items: [
         { title: "Home", url: "/", icon: Home },
+        { title: "JARVIS HUD", url: "/jarvis", icon: Zap },
         { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
       ],
     },
