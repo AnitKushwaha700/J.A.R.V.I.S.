@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { queryAIGateway } from "@/lib/ai/gateway";
 import { queryGrok, GrokServiceError } from "@/lib/ai/grok";
+import { detectToolsToRun, executeTool, type ExecutedTool } from "@/lib/ai/tools";
 import { getOrCreateSessionId } from "@/lib/session";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { chatRequestSchema } from "@/lib/validators";
@@ -68,15 +70,69 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Query primary Grok AI Engine
-    const aiResponse = await queryGrok({
-      message,
-      mode: modeSlug,
-      history,
-      language,
-      personality,
-      responseLength,
-    });
+    // 1. Detect and execute autonomous public tools
+    const detectedTools = detectToolsToRun(message);
+    const executedTools: ExecutedTool[] = [];
+    let toolContext = "";
+    let toolMarkdown = "";
+
+    for (const tool of detectedTools) {
+      try {
+        const result = await executeTool(tool.name, tool.args);
+        executedTools.push(result);
+        if (tool.name === "generate_image") {
+          const imgData = result.result as { imageUrl: string; prompt: string };
+          toolMarkdown += `\n\n![${imgData.prompt}](${imgData.imageUrl})\n*Generated concept visual for: "${imgData.prompt}"*\n\n`;
+        } else if (tool.name === "get_weather" && (result.result as { success: boolean }).success) {
+          const w = (result.result as { data: { location: string; temperature: string; condition: string; humidity: string; windSpeed: string } }).data;
+          toolContext += `Live Weather in ${w.location}: ${w.temperature}, ${w.condition}, Humidity: ${w.humidity}, Wind: ${w.windSpeed}.\n`;
+          toolMarkdown += `\n> 🌤️ **Live Weather:** ${w.location} is **${w.temperature}** (${w.condition}).\n\n`;
+        } else if (tool.name === "get_crypto_price" && (result.result as { success: boolean }).success) {
+          const c = (result.result as { data: { coin: string; price: string; change24h: string | null } }).data;
+          toolContext += `Live ${c.coin.toUpperCase()} price: ${c.price} (${c.change24h || "0%"}).\n`;
+          toolMarkdown += `\n> 💰 **Market Price:** **${c.coin.toUpperCase()}** is trading at **${c.price}** (${c.change24h || "0%"} 24h change).\n\n`;
+        } else if (tool.name === "search_github_repos" && (result.result as { success: boolean }).success) {
+          const gh = (result.result as { data: { query: string; repositories: Array<{ name: string; url: string; stars: number; language: string }> } }).data;
+          toolMarkdown += `\n### 🐙 GitHub Repositories for "${gh.query}"\n` +
+            gh.repositories.map((r) => `- [**${r.name}**](${r.url}) (${r.stars.toLocaleString()} ⭐ - ${r.language || "code"})`).join("\n") + "\n\n";
+        }
+      } catch (err) {
+        console.warn(`[Chat Tool Failed]: ${tool.name}`, err);
+      }
+    }
+
+    // 2. Normalize history turns for the Gateway
+    const normalizedHistory = history?.map((h) => ({
+      role: (h.role === "ai" ? "assistant" : "user") as "user" | "assistant",
+      content: h.text,
+    }));
+
+    // 3. Query Multi-Provider AI Gateway (Groq Llama 3.3 70B -> Gemini 2.0 Flash -> Standby)
+    let aiResponse: AIResponse;
+    try {
+      aiResponse = await queryAIGateway({
+        message,
+        modeSlug,
+        history: normalizedHistory,
+        personality,
+        responseLength,
+        userContext: toolContext ? `REAL-TIME TOOL OBSERVATIONS:\n${toolContext}` : undefined,
+      });
+    } catch {
+      // Fallback to Grok if configured, or default graceful reply
+      aiResponse = await queryGrok({
+        message,
+        mode: modeSlug,
+        history,
+        language,
+        personality,
+        responseLength,
+      });
+    }
+
+    if (toolMarkdown) {
+      aiResponse.displayText = `${toolMarkdown}${aiResponse.displayText || aiResponse.reply}`;
+    }
 
     // Save conversation & metadata to MongoDB
     const dbResult = saveToDatabase(

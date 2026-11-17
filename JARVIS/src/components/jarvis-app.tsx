@@ -245,6 +245,7 @@ export function JarvisApp() {
   const [taskSaving, setTaskSaving] = useState(false);
   const recognitionRef = useRef<VoiceRecognition | null>(null);
   const speechTranscriptRef = useRef("");
+  const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -397,13 +398,11 @@ export function JarvisApp() {
     }
   }
 
-  function speakText(text: string) {
+  function fallbackBrowserSpeak(text: string) {
     if (typeof window === "undefined" || !window.speechSynthesis) {
       setState("ready");
-      setChatError("Speech playback is not available in this browser. You can still read the reply.");
       return;
     }
-
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = settings.speechRate;
@@ -415,7 +414,61 @@ export function JarvisApp() {
     window.speechSynthesis.speak(utterance);
   }
 
+  async function speakText(text: string) {
+    if (!text || typeof window === "undefined") {
+      setState("ready");
+      return;
+    }
+
+    // Barge-in: Cancel any ongoing audio immediately
+    stopSpeaking();
+    setState("speaking");
+
+    // Try Edge-TTS high-fidelity neural audio
+    try {
+      const response = await fetch("/api/voice/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text,
+          voice: activeMode === "english" ? "coach" : activeMode === "interview" ? "mentor" : "jarvis",
+        }),
+      });
+
+      if (response.ok) {
+        const audioBlob = await response.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        audioPlayerRef.current = audio;
+
+        audio.onended = () => {
+          URL.revokeObjectURL(audioUrl);
+          audioPlayerRef.current = null;
+          setState("ready");
+        };
+
+        audio.onerror = () => {
+          URL.revokeObjectURL(audioUrl);
+          audioPlayerRef.current = null;
+          fallbackBrowserSpeak(text);
+        };
+
+        await audio.play();
+        return;
+      }
+    } catch {
+      // Fallback to client browser SpeechSynthesis on network/service issue
+    }
+
+    fallbackBrowserSpeak(text);
+  }
+
   function stopSpeaking() {
+    if (audioPlayerRef.current) {
+      audioPlayerRef.current.pause();
+      audioPlayerRef.current.currentTime = 0;
+      audioPlayerRef.current = null;
+    }
     if (typeof window !== "undefined") window.speechSynthesis?.cancel();
     setState((current) => (current === "speaking" ? "ready" : current));
   }
