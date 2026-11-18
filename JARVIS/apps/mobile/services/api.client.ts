@@ -1,5 +1,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
+import {
+  ResearchSearchResult,
+  SearchSource,
+  WeatherData,
+  CryptoData,
+  WikiData,
+  GitHubData,
+  ArXivData,
+  CitationCard,
+} from '@jarvis/shared-types';
 
 const STORAGE_KEY_TOKEN = '@jarvis_access_token';
 const STORAGE_KEY_REFRESH = '@jarvis_refresh_token';
@@ -182,6 +192,53 @@ class ApiClient {
     } catch (err: unknown) {
       params.onError(err instanceof Error ? err : new Error(String(err)));
     }
+  }
+
+  // --- Web Research & Public APIs ---
+
+  async searchResearch(params: {
+    query: string;
+    sources?: SearchSource[];
+    synthesize?: boolean;
+    maxResultsPerSource?: number;
+    model?: string;
+  }): Promise<ResearchSearchResult> {
+    return this.request<ResearchSearchResult>('research/search', {
+      method: 'POST',
+      body: JSON.stringify(params),
+    });
+  }
+
+  async getWeather(location: string): Promise<WeatherData> {
+    return this.request<WeatherData>(`research/weather?location=${encodeURIComponent(location)}`);
+  }
+
+  async getCrypto(coin: string, currency: string = 'usd'): Promise<CryptoData> {
+    return this.request<CryptoData>(
+      `research/crypto?coin=${encodeURIComponent(coin)}&currency=${encodeURIComponent(currency)}`,
+    );
+  }
+
+  async getWiki(query: string): Promise<WikiData> {
+    return this.request<WikiData>(`research/wiki?query=${encodeURIComponent(query)}`);
+  }
+
+  async getGitHub(query: string, limit: number = 5): Promise<GitHubData> {
+    return this.request<GitHubData>(
+      `research/github?query=${encodeURIComponent(query)}&limit=${limit}`,
+    );
+  }
+
+  async getArXiv(query: string, limit: number = 5): Promise<ArXivData> {
+    return this.request<ArXivData>(
+      `research/arxiv?query=${encodeURIComponent(query)}&limit=${limit}`,
+    );
+  }
+
+  async getNews(query: string, limit: number = 5): Promise<CitationCard[]> {
+    return this.request<CitationCard[]>(
+      `research/news?query=${encodeURIComponent(query)}&limit=${limit}`,
+    );
   }
 }
 
