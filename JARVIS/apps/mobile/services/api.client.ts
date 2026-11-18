@@ -9,6 +9,11 @@ import {
   GitHubData,
   ArXivData,
   CitationCard,
+  CodeExecutionRequest,
+  CodeExecutionResult,
+  CodeGenerateRequest,
+  CodeGenerateResult,
+  GeneratedProject,
 } from '@jarvis/shared-types';
 
 const STORAGE_KEY_TOKEN = '@jarvis_access_token';
@@ -239,6 +244,32 @@ class ApiClient {
     return this.request<CitationCard[]>(
       `research/news?query=${encodeURIComponent(query)}&limit=${limit}`,
     );
+  }
+
+  // --- Coding Workspace & Sandbox ---
+
+  async executeCode(params: CodeExecutionRequest): Promise<CodeExecutionResult> {
+    return this.request<CodeExecutionResult>('code/execute', {
+      method: 'POST',
+      body: JSON.stringify(params),
+    });
+  }
+
+  async generateCode(params: CodeGenerateRequest): Promise<CodeGenerateResult> {
+    return this.request<CodeGenerateResult>('code/generate', {
+      method: 'POST',
+      body: JSON.stringify(params),
+    });
+  }
+
+  async generateProject(params: {
+    prompt: string;
+    template?: string;
+  }): Promise<GeneratedProject> {
+    return this.request<GeneratedProject>('code/project', {
+      method: 'POST',
+      body: JSON.stringify(params),
+    });
   }
 }
 
