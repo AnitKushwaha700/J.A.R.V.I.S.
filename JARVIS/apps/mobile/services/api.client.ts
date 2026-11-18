@@ -18,6 +18,13 @@ import {
   MemorySearchResult,
   KnowledgeDoc,
   DocumentChunkItem,
+  Task,
+  CreateTaskDto,
+  UpdateTaskDto,
+  VoiceTaskExtractionResult,
+  DailyBriefing,
+  TaskStatus,
+  TaskPriority,
 } from '@jarvis/shared-types';
 
 const STORAGE_KEY_TOKEN = '@jarvis_access_token';
@@ -355,6 +362,54 @@ class ApiClient {
       method: 'POST',
       body: JSON.stringify({ query, topK }),
     });
+  }
+
+  // --- Tasks & Daily Briefing ---
+
+  async getTasks(filter?: {
+    status?: TaskStatus;
+    priority?: TaskPriority;
+  }): Promise<Task[]> {
+    const params = new URLSearchParams();
+    if (filter?.status) params.append('status', filter.status);
+    if (filter?.priority) params.append('priority', filter.priority);
+    const qs = params.toString() ? `?${params.toString()}` : '';
+    return this.request<Task[]>(`tasks${qs}`);
+  }
+
+  async createTask(dto: CreateTaskDto): Promise<Task> {
+    return this.request<Task>('tasks', {
+      method: 'POST',
+      body: JSON.stringify(dto),
+    });
+  }
+
+  async updateTask(id: string, dto: UpdateTaskDto): Promise<Task> {
+    return this.request<Task>(`tasks/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(dto),
+    });
+  }
+
+  async deleteTask(id: string): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>(`tasks/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async extractTask(text: string): Promise<VoiceTaskExtractionResult> {
+    return this.request<VoiceTaskExtractionResult>('tasks/extract', {
+      method: 'POST',
+      body: JSON.stringify({ text }),
+    });
+  }
+
+  async getDailyBriefing(location: string = 'Mumbai'): Promise<DailyBriefing> {
+    return this.request<DailyBriefing>(`tasks/briefing?location=${encodeURIComponent(location)}`);
+  }
+
+  getDailyBriefingAudioUrl(location: string = 'Mumbai'): string {
+    return `${this.serverUrl}/tasks/briefing/audio?location=${encodeURIComponent(location)}`;
   }
 }
 

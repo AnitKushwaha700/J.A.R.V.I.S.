@@ -124,3 +124,4 @@ class VoiceEngine {
 }
 
 export const voiceEngine = new VoiceEngine();
+export const voiceService = voiceEngine;

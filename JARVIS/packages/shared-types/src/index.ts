@@ -5,3 +5,4 @@ export * from './tool.types';
 export * from './search.types';
 export * from './code.types';
 export * from './knowledge.types';
+export * from './task.types';
