@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AIGatewayService } from '../ai/ai-gateway.service';
+import { MemoryService } from '../memory/memory.service';
 import { CreateConversationDto } from './dto/create-conversation.dto';
 import { SendMessageDto } from './dto/send-message.dto';
 import { Response } from 'express';
@@ -14,6 +15,7 @@ export class ConversationsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly aiGateway: AIGatewayService,
+    private readonly memoryService: MemoryService,
   ) {}
 
   async list(userId: string) {
@@ -119,11 +121,15 @@ export class ConversationsService {
     let modelUsed = dto.model || conversation.modelId || 'auto';
 
     try {
+      // Fetch relevant user memories & knowledge chunks (RAG)
+      const ragSnippet = await this.memoryService.getRAGContext(userId, dto.content);
+      const combinedSystemPrompt = (dto.systemPrompt ? dto.systemPrompt + '\n' : '') + (ragSnippet || '');
+
       const stream = this.aiGateway.stream(
         {
           model: modelUsed,
           messages: chatMessages,
-          systemPrompt: dto.systemPrompt,
+          systemPrompt: combinedSystemPrompt || undefined,
         },
         userId,
       );

@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConversationsService } from './conversations.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AIGatewayService } from '../ai/ai-gateway.service';
+import { MemoryService } from '../memory/memory.service';
 
 describe('ConversationsService', () => {
   let service: ConversationsService;
@@ -42,6 +43,7 @@ describe('ConversationsService', () => {
         ConversationsService,
         { provide: PrismaService, useValue: mockPrisma },
         { provide: AIGatewayService, useValue: mockAiGateway },
+        { provide: MemoryService, useValue: { getRAGContext: jest.fn().mockResolvedValue('') } },
       ],
     }).compile();
 

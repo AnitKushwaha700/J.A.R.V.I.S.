@@ -9,6 +9,8 @@ import { AiModule } from './modules/ai/ai.module';
 import { VoiceModule } from './modules/voice/voice.module';
 import { SearchModule } from './modules/search/search.module';
 import { CodeModule } from './modules/code/code.module';
+import { KnowledgeModule } from './modules/knowledge/knowledge.module';
+import { MemoryModule } from './modules/memory/memory.module';
 import { TasksModule } from './modules/tasks/tasks.module';
 import { HealthModule } from './modules/health/health.module';
 
@@ -27,6 +29,8 @@ import { HealthModule } from './modules/health/health.module';
     VoiceModule,
     SearchModule,
     CodeModule,
+    KnowledgeModule,
+    MemoryModule,
     TasksModule,
     HealthModule,
   ],

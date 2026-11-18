@@ -8,7 +8,7 @@ import {
   SafeAreaView,
   Alert,
 } from 'react-native';
-import { Settings, Server, Volume2, ShieldCheck, LogOut, Check } from 'lucide-react-native';
+import { Settings, Server, Volume2, ShieldCheck, LogOut, Check, Brain, BookOpen, ChevronRight } from 'lucide-react-native';
 import { useSettingsStore } from '../../stores/settings.store';
 import { useAuthStore } from '../../stores/auth.store';
 import { useRouter } from 'expo-router';
@@ -71,6 +71,45 @@ export default function SettingsScreen() {
               </TouchableOpacity>
             </View>
           )}
+        </View>
+
+        {/* Memory & Knowledge Management */}
+        <View className="bg-card border border-border p-4 rounded-2xl mb-4">
+          <Text className="text-xs font-bold text-secondary uppercase tracking-wider mb-2.5">
+            PERSONAL INTELLIGENCE & RAG
+          </Text>
+
+          <TouchableOpacity
+            onPress={() => router.push('/memories' as any)}
+            className="flex-row items-center justify-between py-2.5 border-b border-border/40 active:opacity-70"
+          >
+            <View className="flex-row items-center">
+              <View className="w-8 h-8 rounded-lg bg-primary/20 items-center justify-center mr-3">
+                <Brain size={16} color="#38bdf8" />
+              </View>
+              <View>
+                <Text className="text-sm font-semibold text-slate-100">User Memories</Text>
+                <Text className="text-[11px] text-slate-400">Personal facts, preferences & instructions</Text>
+              </View>
+            </View>
+            <ChevronRight size={16} color="#64748b" />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => router.push('/knowledge' as any)}
+            className="flex-row items-center justify-between pt-2.5 active:opacity-70"
+          >
+            <View className="flex-row items-center">
+              <View className="w-8 h-8 rounded-lg bg-purple-500/20 items-center justify-center mr-3">
+                <BookOpen size={16} color="#c084fc" />
+              </View>
+              <View>
+                <Text className="text-sm font-semibold text-slate-100">Knowledge Base & Documents</Text>
+                <Text className="text-[11px] text-slate-400">Vector embeddings & semantic retrieval</Text>
+              </View>
+            </View>
+            <ChevronRight size={16} color="#64748b" />
+          </TouchableOpacity>
         </View>
 
         {/* Backend API Server URL */}

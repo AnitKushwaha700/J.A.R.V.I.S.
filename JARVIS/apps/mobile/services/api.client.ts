@@ -14,6 +14,10 @@ import {
   CodeGenerateRequest,
   CodeGenerateResult,
   GeneratedProject,
+  UserMemory,
+  MemorySearchResult,
+  KnowledgeDoc,
+  DocumentChunkItem,
 } from '@jarvis/shared-types';
 
 const STORAGE_KEY_TOKEN = '@jarvis_access_token';
@@ -269,6 +273,87 @@ class ApiClient {
     return this.request<GeneratedProject>('code/project', {
       method: 'POST',
       body: JSON.stringify(params),
+    });
+  }
+
+  // --- Memory Management ---
+
+  async getMemories(category?: string): Promise<UserMemory[]> {
+    const query = category ? `?category=${encodeURIComponent(category)}` : '';
+    return this.request<UserMemory[]>(`memory${query}`);
+  }
+
+  async createMemory(params: {
+    content: string;
+    category?: string;
+    importance?: number;
+  }): Promise<UserMemory> {
+    return this.request<UserMemory>('memory', {
+      method: 'POST',
+      body: JSON.stringify(params),
+    });
+  }
+
+  async updateMemory(
+    id: string,
+    params: { content?: string; category?: string; importance?: number },
+  ): Promise<UserMemory> {
+    return this.request<UserMemory>(`memory/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(params),
+    });
+  }
+
+  async deleteMemory(id: string): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>(`memory/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async clearAllMemories(): Promise<{ success: boolean; count: number }> {
+    return this.request<{ success: boolean; count: number }>('memory', {
+      method: 'DELETE',
+    });
+  }
+
+  async searchMemories(query: string, topK: number = 5): Promise<MemorySearchResult[]> {
+    return this.request<MemorySearchResult[]>('memory/search', {
+      method: 'POST',
+      body: JSON.stringify({ query, topK }),
+    });
+  }
+
+  async exportMemories(): Promise<{ json: UserMemory[]; markdown: string }> {
+    return this.request<{ json: UserMemory[]; markdown: string }>('memory/export');
+  }
+
+  // --- Knowledge Base & RAG ---
+
+  async getKnowledgeDocs(): Promise<KnowledgeDoc[]> {
+    return this.request<KnowledgeDoc[]>('knowledge/documents');
+  }
+
+  async ingestKnowledgeDoc(params: {
+    title: string;
+    content: string;
+    fileType?: string;
+  }): Promise<KnowledgeDoc> {
+    return this.request<KnowledgeDoc>('knowledge/documents', {
+      method: 'POST',
+      body: JSON.stringify(params),
+    });
+  }
+
+  async deleteKnowledgeDoc(id: string): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>(`knowledge/documents/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async searchKnowledge(query: string, topK: number = 4): Promise<DocumentChunkItem[]> {
+    return this.request<DocumentChunkItem[]>('knowledge/search', {
+      method: 'POST',
+      body: JSON.stringify({ query, topK }),
     });
   }
 }
