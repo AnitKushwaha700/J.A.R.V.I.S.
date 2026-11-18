@@ -2,6 +2,7 @@
   "name": "jarvis-v2",
   "version": "2.0.0",
   "private": true,
+  "packageManager": "npm@11.2.0",
   "workspaces": [
     "apps/*",
     "packages/*"

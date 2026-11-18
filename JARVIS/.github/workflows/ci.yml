@@ -1,4 +1,4 @@
-name: CI
+name: Monorepo CI
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   backend-ci:
-    name: Backend — Lint, Typecheck & Test
+    name: Backend — Lint, Typecheck & Tests
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -16,7 +16,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:16
+        image: pgvector/pgvector:pg16
         env:
           POSTGRES_USER: jarvis
           POSTGRES_PASSWORD: test_password
@@ -40,7 +40,6 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: apps/backend/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -54,5 +53,53 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-      - name: Run unit tests
+      - name: Run unit & integration tests
         run: npm test -- --passWithNoTests
+
+      - name: Build backend
+        run: npm run build
+
+  web-ci:
+    name: Web & Desktop — Typecheck & Production Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install monorepo dependencies
+        run: npm ci
+        working-directory: .
+
+      - name: Typecheck Web App
+        run: npm run typecheck
+
+      - name: Build Next.js Static Pages
+        run: npm run build
+
+  mobile-ci:
+    name: Mobile — Typecheck
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/mobile
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install monorepo dependencies
+        run: npm ci
+        working-directory: .
+
+      - name: Typecheck Mobile App
+        run: npm run typecheck
