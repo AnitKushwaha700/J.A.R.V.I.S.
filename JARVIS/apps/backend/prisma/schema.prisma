@@ -1,0 +1,305 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum MessageRole {
+  user
+  assistant
+  system
+  tool
+}
+
+enum TaskStatus {
+  todo
+  in_progress
+  completed
+  skipped
+}
+
+enum TaskPriority {
+  low
+  medium
+  high
+}
+
+enum ToolRiskLevel {
+  low
+  medium
+  high
+  critical
+}
+
+enum ToolExecutionStatus {
+  pending
+  confirmed
+  executing
+  completed
+  failed
+  rejected
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String    @map("password_hash")
+  name          String
+  avatarUrl     String?   @map("avatar_url")
+  role          UserRole  @default(USER)
+  isActive      Boolean   @default(true) @map("is_active")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  preferences      UserPreference?
+  conversations    Conversation[]
+  memories         Memory[]
+  knowledgeDocs    KnowledgeDocument[]
+  tasks            Task[]
+  toolExecutions   ToolExecution[]
+  providerUsage    ProviderUsage[]
+  auditLogs        AuditLog[]
+  refreshTokens    RefreshToken[]
+
+  @@map("users")
+}
+
+model UserPreference {
+  id              String   @id @default(uuid())
+  userId          String   @unique @map("user_id")
+  defaultModel    String   @default("gemini-2.0-flash") @map("default_model")
+  defaultProvider String   @default("gemini") @map("default_provider")
+  voiceId         String   @default("en-US-ChristopherNeural") @map("voice_id")
+  speechRate      Float    @default(1.0) @map("speech_rate")
+  autoSpeak       Boolean  @default(true) @map("auto_speak")
+  uiTheme         String   @default("dark") @map("ui_theme")
+  customSettings  Json     @default("{}") @map("custom_settings")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_preferences")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+model AiProvider {
+  id           String     @id @default(uuid())
+  name         String     @unique
+  baseUrl      String     @map("base_url")
+  isActive     Boolean    @default(true) @map("is_active")
+  capabilities Json       @default("{}")
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  models        AiModel[]
+  providerUsage ProviderUsage[]
+
+  @@map("ai_providers")
+}
+
+model AiModel {
+  id               String   @id @default(uuid())
+  providerId       String   @map("provider_id")
+  modelId          String   @map("model_id")
+  displayName      String   @map("display_name")
+  contextWindow    Int      @default(8192) @map("context_window")
+  supportsVision   Boolean  @default(false) @map("supports_vision")
+  supportsTools    Boolean  @default(false) @map("supports_tools")
+  supportsStream   Boolean  @default(true) @map("supports_stream")
+  isFreeTier       Boolean  @default(true) @map("is_free_tier")
+  priority         Int      @default(0)
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  provider      AiProvider     @relation(fields: [providerId], references: [id])
+  conversations Conversation[]
+
+  @@unique([providerId, modelId])
+  @@map("ai_models")
+}
+
+model Conversation {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  modelId   String?  @map("model_id")
+  title     String   @default("New Conversation")
+  mode      String   @default("assistant")
+  metadata  Json     @default("{}")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  model    AiModel?   @relation(fields: [modelId], references: [id])
+  messages Message[]
+
+  @@index([userId, updatedAt(sort: Desc)])
+  @@map("conversations")
+}
+
+model Message {
+  id             String      @id @default(uuid())
+  conversationId String      @map("conversation_id")
+  role           MessageRole
+  content        String
+  toolCalls      Json?       @map("tool_calls")
+  toolResults    Json?       @map("tool_results")
+  tokenCount     Int?        @map("token_count")
+  providerUsed   String?     @map("provider_used")
+  modelUsed      String?     @map("model_used")
+  createdAt      DateTime    @default(now()) @map("created_at")
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  attachments  Attachment[]
+
+  @@index([conversationId, createdAt])
+  @@map("messages")
+}
+
+model Attachment {
+  id            String   @id @default(uuid())
+  messageId     String   @map("message_id")
+  fileName      String   @map("file_name")
+  fileType      String   @map("file_type")
+  storagePath   String   @map("storage_path")
+  fileSize      Int      @map("file_size")
+  extractedText String?  @map("extracted_text")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@map("attachments")
+}
+
+model Memory {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  category     String   @default("general")
+  content      String
+  importance   Float    @default(0.5)
+  createdAt    DateTime @default(now()) @map("created_at")
+  lastAccessed DateTime @default(now()) @map("last_accessed")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, category])
+  @@map("memories")
+}
+
+model KnowledgeDocument {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  title       String
+  fileType    String   @map("file_type")
+  storagePath String   @map("storage_path")
+  chunkCount  Int      @default(0) @map("chunk_count")
+  isIndexed   Boolean  @default(false) @map("is_indexed")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user   User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chunks DocumentChunk[]
+
+  @@index([userId])
+  @@map("knowledge_documents")
+}
+
+model DocumentChunk {
+  id         String   @id @default(uuid())
+  documentId String   @map("document_id")
+  chunkIndex Int      @map("chunk_index")
+  content    String
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  document KnowledgeDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId, chunkIndex])
+  @@map("document_chunks")
+}
+
+model Task {
+  id             String       @id @default(uuid())
+  userId         String       @map("user_id")
+  title          String
+  description    String?
+  status         TaskStatus   @default(todo)
+  priority       TaskPriority @default(medium)
+  dueAt          DateTime?    @map("due_at")
+  isRecurring    Boolean      @default(false) @map("is_recurring")
+  recurrenceRule String?      @map("recurrence_rule")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([userId, dueAt])
+  @@map("tasks")
+}
+
+model ToolExecution {
+  id            String              @id @default(uuid())
+  userId        String              @map("user_id")
+  messageId     String?             @map("message_id")
+  toolName      String              @map("tool_name")
+  inputArgs     Json                @map("input_args")
+  outputResult  Json?               @map("output_result")
+  status        ToolExecutionStatus @default(pending)
+  riskLevel     ToolRiskLevel       @default(low) @map("risk_level")
+  userConfirmed Boolean             @default(false) @map("user_confirmed")
+  executedAt    DateTime            @default(now()) @map("executed_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, executedAt(sort: Desc)])
+  @@map("tool_executions")
+}
+
+model ProviderUsage {
+  id               String   @id @default(uuid())
+  userId           String   @map("user_id")
+  providerId       String   @map("provider_id")
+  usageDate        DateTime @map("usage_date") @db.Date
+  requestCount     Int      @default(0) @map("request_count")
+  totalTokens      Int      @default(0) @map("total_tokens")
+  promptTokens     Int      @default(0) @map("prompt_tokens")
+  completionTokens Int      @default(0) @map("completion_tokens")
+
+  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider AiProvider @relation(fields: [providerId], references: [id])
+
+  @@unique([userId, providerId, usageDate])
+  @@map("provider_usage")
+}
+
+model AuditLog {
+  id           String   @id @default(uuid())
+  userId       String?  @map("user_id")
+  action       String
+  resourceType String?  @map("resource_type")
+  resourceId   String?  @map("resource_id")
+  metadata     Json     @default("{}")
+  ipAddress    String?  @map("ip_address")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([action, createdAt(sort: Desc)])
+  @@map("audit_logs")
+}
