@@ -4,8 +4,12 @@ import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
-import helmet from 'helmet';
-import compression from 'compression';
+import * as helmetPkg from 'helmet';
+import * as compressionPkg from 'compression';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const helmet: any = (helmetPkg as any).default ?? helmetPkg;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const compression: any = (compressionPkg as any).default ?? compressionPkg;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
