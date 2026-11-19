@@ -21,6 +21,10 @@
     "turbo": "^2.3.3",
     "typescript": "^5.7.2"
   },
+  "overrides": {
+    "metro": "~0.81.5",
+    "metro-config": "~0.81.5"
+  },
   "engines": {
     "node": ">=20.0.0",
     "npm": ">=10.0.0"
