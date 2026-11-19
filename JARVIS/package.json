@@ -15,7 +15,8 @@
     "typecheck": "turbo run typecheck",
     "backend:dev": "npm run dev --workspace=apps/backend",
     "mobile:dev": "npm run dev --workspace=apps/mobile",
-    "web:dev": "npm run dev --workspace=apps/web"
+    "web:dev": "npm run dev --workspace=apps/web",
+    "postinstall": "node scripts/patch-metro.js"
   },
   "devDependencies": {
     "turbo": "^2.3.3",
