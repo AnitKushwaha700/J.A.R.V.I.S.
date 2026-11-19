@@ -26,7 +26,7 @@ export default function ChatPage() {
     },
   ]);
   const [input, setInput] = useState('');
-  const [selectedModel, setSelectedModel] = useState('llama-3.3-70b-versatile');
+  const [selectedModel, setSelectedModel] = useState('openai/gpt-oss-120b');
   const [streaming, setStreaming] = useState(false);
   const [attachments, setAttachments] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
@@ -144,10 +144,11 @@ export default function ChatPage() {
   };
 
   const models = [
-    { id: 'llama-3.3-70b-versatile', label: 'Groq Llama 3.3 70B ⚡' },
-    { id: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash 🧠' },
-    { id: 'deepseek/deepseek-r1:free', label: 'DeepSeek R1 💡' },
-    { id: 'ollama/llama3', label: 'Ollama Local (Offline) 🖥️' },
+    { id: 'openai/gpt-oss-120b', label: 'OpenAI GPT-OSS 120B (Groq ⚡)' },
+    { id: 'gemini-3.8-flash', label: 'Gemini 3.8 Flash (Multimodal 🧠)' },
+    { id: 'nvidia/nemotron-3.5-lightning:free', label: 'NVIDIA Nemotron 3.5 (OpenRouter 💡)' },
+    { id: 'qwen/qwen3.8-27b', label: 'Qwen 3.8 27B (Groq 🚀)' },
+    { id: 'jarvis-offline-standby', label: 'JARVIS Standby (Offline 🖥️)' },
   ];
 
   return (

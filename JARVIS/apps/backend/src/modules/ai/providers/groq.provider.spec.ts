@@ -21,7 +21,7 @@ describe('GroqProvider', () => {
   it('should list available Groq models with high-speed capabilities', async () => {
     const models = await provider.listModels();
     expect(models.length).toBeGreaterThan(0);
-    const llama = models.find((m) => m.modelId === 'llama-3.3-70b-versatile');
+    const llama = models.find((m) => m.modelId === 'openai/gpt-oss-120b');
     expect(llama).toBeDefined();
     expect(llama?.supportsStream).toBe(true);
     expect(llama?.isFreeTier).toBe(true);

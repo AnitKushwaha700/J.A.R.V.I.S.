@@ -46,11 +46,15 @@ export class GeminiProvider implements AIProvider {
     }
     const start = Date.now();
     try {
-      // Light check
-      await this.client!.models.generateContent({
-        model: 'gemini-2.0-flash',
+      // Light check with 3s timeout
+      const pingPromise = this.client!.models.generateContent({
+        model: 'gemini-3.8-flash',
         contents: 'ping',
       });
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Gemini ping timeout (3s)')), 3000),
+      );
+      await Promise.race([pingPromise, timeoutPromise]);
       return {
         name: this.name,
         status: 'ok',
@@ -68,29 +72,16 @@ export class GeminiProvider implements AIProvider {
   async listModels(): Promise<AIModel[]> {
     return [
       {
-        id: 'gemini-2.0-flash',
-        modelId: 'gemini-2.0-flash',
-        displayName: 'Gemini 2.0 Flash (Next-Gen)',
+        id: 'gemini-3.8-flash',
+        modelId: 'gemini-3.8-flash',
+        displayName: 'Gemini 3.8 Flash (Latest Flagship)',
         provider: 'gemini',
         contextWindow: 1048576,
         supportsVision: true,
         supportsTools: true,
         supportsStream: true,
         isFreeTier: true,
-        description: 'Next-gen multimodal reasoning, 1M token context, free tier available.',
-        priority: 2,
-      },
-      {
-        id: 'gemini-1.5-flash',
-        modelId: 'gemini-1.5-flash',
-        displayName: 'Gemini 1.5 Flash',
-        provider: 'gemini',
-        contextWindow: 1048576,
-        supportsVision: true,
-        supportsTools: true,
-        supportsStream: true,
-        isFreeTier: true,
-        description: 'High-speed multimodal flash model with huge context window.',
+        description: 'Google DeepMind flagship multimodal model, 1M token context, highly capable.',
         priority: 4,
       },
     ];
@@ -101,7 +92,7 @@ export class GeminiProvider implements AIProvider {
       throw new Error('GeminiProvider is not configured with an API key.');
     }
 
-    const modelName = params.model || 'gemini-2.0-flash';
+    const modelName = params.model || 'gemini-3.8-flash';
     const contents = params.messages.map((m) => `${m.role.toUpperCase()}: ${m.content}`).join('\n\n');
 
     const config: Record<string, unknown> = {};
@@ -142,7 +133,7 @@ export class GeminiProvider implements AIProvider {
       throw new Error('GeminiProvider is not configured with an API key.');
     }
 
-    const modelName = params.model || 'gemini-2.0-flash';
+    const modelName = params.model || 'gemini-3.8-flash';
     const contents = params.messages.map((m) => `${m.role.toUpperCase()}: ${m.content}`).join('\n\n');
 
     const config: Record<string, unknown> = {};

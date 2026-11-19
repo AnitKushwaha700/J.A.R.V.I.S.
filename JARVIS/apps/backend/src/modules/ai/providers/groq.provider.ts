@@ -64,29 +64,42 @@ export class GroqProvider implements AIProvider {
   async listModels(): Promise<AIModel[]> {
     return [
       {
-        id: 'llama-3.3-70b-versatile',
-        modelId: 'llama-3.3-70b-versatile',
-        displayName: 'Llama 3.3 70B Versatile (Ultra Fast)',
+        id: 'openai/gpt-oss-120b',
+        modelId: 'openai/gpt-oss-120b',
+        displayName: 'OpenAI GPT-OSS 120B (Ultra Fast Groq)',
         provider: 'groq',
         contextWindow: 128000,
         supportsVision: false,
         supportsTools: true,
         supportsStream: true,
         isFreeTier: true,
-        description: 'Industry-leading speed (sub-250ms), 128K context, ideal for conversational chat.',
+        description: 'Flagship 120B reasoning & generation model running on Groq LPUs at blazing speeds.',
         priority: 1,
       },
       {
-        id: 'llama-3.1-8b-instant',
-        modelId: 'llama-3.1-8b-instant',
-        displayName: 'Llama 3.1 8B Instant',
+        id: 'qwen/qwen3.8-27b',
+        modelId: 'qwen/qwen3.8-27b',
+        displayName: 'Qwen 3.8 27B (Groq)',
         provider: 'groq',
         contextWindow: 128000,
         supportsVision: false,
         supportsTools: true,
         supportsStream: true,
         isFreeTier: true,
-        description: 'Blazing fast lightweight model for quick summaries and tasks.',
+        description: 'High-capability multilingual model running with sub-second response times on Groq.',
+        priority: 2,
+      },
+      {
+        id: 'openai/gpt-oss-20b',
+        modelId: 'openai/gpt-oss-20b',
+        displayName: 'OpenAI GPT-OSS 20B (Instant)',
+        provider: 'groq',
+        contextWindow: 128000,
+        supportsVision: false,
+        supportsTools: true,
+        supportsStream: true,
+        isFreeTier: true,
+        description: 'Lightweight, ultra-low latency model for instant responses and summaries.',
         priority: 3,
       },
     ];
@@ -112,7 +125,7 @@ export class GroqProvider implements AIProvider {
       throw new Error('GroqProvider is not configured with an API key.');
     }
 
-    const modelName = params.model || 'llama-3.3-70b-versatile';
+    const modelName = params.model || 'openai/gpt-oss-120b';
     const messages = this.buildMessages(params);
 
     const completion = await this.client!.chat.completions.create({
@@ -144,7 +157,7 @@ export class GroqProvider implements AIProvider {
       throw new Error('GroqProvider is not configured with an API key.');
     }
 
-    const modelName = params.model || 'llama-3.3-70b-versatile';
+    const modelName = params.model || 'openai/gpt-oss-120b';
     const messages = this.buildMessages(params);
 
     const stream = await this.client!.chat.completions.create({

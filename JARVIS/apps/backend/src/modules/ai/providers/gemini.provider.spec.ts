@@ -21,7 +21,7 @@ describe('GeminiProvider', () => {
   it('should list available Gemini models with capabilities', async () => {
     const models = await provider.listModels();
     expect(models.length).toBeGreaterThan(0);
-    const flash = models.find((m) => m.modelId === 'gemini-2.0-flash');
+    const flash = models.find((m) => m.modelId === 'gemini-3.8-flash');
     expect(flash).toBeDefined();
     expect(flash?.supportsVision).toBe(true);
     expect(flash?.supportsStream).toBe(true);

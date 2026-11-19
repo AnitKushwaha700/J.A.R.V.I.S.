@@ -59,29 +59,29 @@ export class OpenRouterProvider implements AIProvider {
   async listModels(): Promise<AIModel[]> {
     return [
       {
-        id: 'deepseek/deepseek-r1:free',
-        modelId: 'deepseek/deepseek-r1:free',
-        displayName: 'DeepSeek R1 (Free Reasoning)',
-        provider: 'openrouter',
-        contextWindow: 65536,
-        supportsVision: false,
-        supportsTools: false,
-        supportsStream: true,
-        isFreeTier: true,
-        description: 'Advanced open reasoning model through OpenRouter free tier.',
-        priority: 5,
-      },
-      {
-        id: 'meta-llama/llama-3.3-70b-instruct:free',
-        modelId: 'meta-llama/llama-3.3-70b-instruct:free',
-        displayName: 'Llama 3.3 70B (OpenRouter Free)',
+        id: 'nvidia/nemotron-3.5-lightning:free',
+        modelId: 'nvidia/nemotron-3.5-lightning:free',
+        displayName: 'NVIDIA Nemotron 3.5 Lightning (Free)',
         provider: 'openrouter',
         contextWindow: 131072,
         supportsVision: false,
         supportsTools: true,
         supportsStream: true,
         isFreeTier: true,
-        description: 'Llama 3.3 70B instruction-tuned model via OpenRouter.',
+        description: 'High-speed instruction tuned reasoning model by NVIDIA, free on OpenRouter.',
+        priority: 5,
+      },
+      {
+        id: 'particle-ai/particle-1:free',
+        modelId: 'particle-ai/particle-1:free',
+        displayName: 'Particle-1 (Free)',
+        provider: 'openrouter',
+        contextWindow: 65536,
+        supportsVision: false,
+        supportsTools: false,
+        supportsStream: true,
+        isFreeTier: true,
+        description: 'Fast lightweight model via OpenRouter free tier.',
         priority: 6,
       },
     ];
@@ -92,7 +92,7 @@ export class OpenRouterProvider implements AIProvider {
       throw new Error('OpenRouterProvider is not configured with an API key.');
     }
 
-    const model = params.model || 'deepseek/deepseek-r1:free';
+    const model = params.model || 'nvidia/nemotron-3.5-lightning:free';
     const messages = [];
     if (params.systemPrompt) {
       messages.push({ role: 'system', content: params.systemPrompt });
@@ -142,7 +142,7 @@ export class OpenRouterProvider implements AIProvider {
       throw new Error('OpenRouterProvider is not configured with an API key.');
     }
 
-    const model = params.model || 'deepseek/deepseek-r1:free';
+    const model = params.model || 'nvidia/nemotron-3.5-lightning:free';
     const messages = [];
     if (params.systemPrompt) {
       messages.push({ role: 'system', content: params.systemPrompt });
