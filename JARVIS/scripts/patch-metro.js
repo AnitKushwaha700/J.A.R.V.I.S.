@@ -16,11 +16,20 @@ for (const dir of searchDirs) {
         const pkgJson = path.join(dir, name, 'package.json');
         if (fs.existsSync(pkgJson)) {
           const pkg = JSON.parse(fs.readFileSync(pkgJson, 'utf8'));
-          if (pkg.exports) {
-            delete pkg.exports;
-            fs.writeFileSync(pkgJson, JSON.stringify(pkg, null, 2));
-            console.log(`[patch-metro] Unlocked exports for ${name}`);
-          }
+          pkg.exports = {
+            ".": "./src/index.js",
+            "./package.json": "./package.json",
+            "./private/*": "./src/*.js",
+            "./src/lib/*": "./src/lib/*.js",
+            "./src/stores/*": "./src/stores/*.js",
+            "./src/defaults/*": "./src/defaults/*.js",
+            "./src/defaults/index": "./src/defaults/index.js",
+            "./src/*": "./src/*.js",
+            "./src/**/*.js": "./src/**/*.js",
+            "./*": "./src/*.js"
+          };
+          fs.writeFileSync(pkgJson, JSON.stringify(pkg, null, 2));
+          console.log(`[patch-metro] Configured universal exports for ${name}`);
         }
       }
     }
